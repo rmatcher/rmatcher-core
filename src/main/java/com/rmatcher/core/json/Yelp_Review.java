@@ -1,3 +1,5 @@
+package com.rmatcher.core.json;
+
 /**
  * Created with IntelliJ IDEA.
  * User: santoki
