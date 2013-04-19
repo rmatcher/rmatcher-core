@@ -20,7 +20,7 @@
             <version>4.7</version>
             <scope>test</scope>
         </dependency>
-        <!-- Google-Gson -->
+        <!-- Google-Gson-2.2.2 -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
