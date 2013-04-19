@@ -18,6 +18,7 @@ public class JsonParser {
             "/Users/santoki/yelp/yelp_phoenix_academic_dataset/yelp_academic_dataset_checkin.json";
     // "/Users/santoki/yelp/yelp_phoenix_academic_dataset/yelp_academic_dataset_review.json";
     // Should replace with relative location
+    // Small change here to test Git
 
     public static void main(String[] args) throws Exception {
 
