@@ -17,6 +17,7 @@ CREATE TABLE business (business_id VARCHAR(30) NOT NULL,
 
 CREATE TABLE user (user_id VARCHAR(30) NOT NULL,
     name VARCHAR(100) NOT NULL,
+    review_count INT NOT NULL,
     average_stars DOUBLE NOT NULL,
     votes VARCHAR(500) NOT NULL,
     PRIMARY KEY (user_id));

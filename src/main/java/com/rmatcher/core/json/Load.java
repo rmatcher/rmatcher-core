@@ -106,12 +106,13 @@ public class Load {
             Statement statement = connect.createStatement();
 
             preparedStatement = connect
-                    .prepareStatement("INSERT INTO rmatcher.user values (?, ?, ?, ?)");
+                    .prepareStatement("INSERT INTO rmatcher.user values (?, ?, ?, ?, ?)");
 
             preparedStatement.setString(1, user.get_user_id());
             preparedStatement.setString(2, user.get_name());
-            preparedStatement.setDouble(3, user.get_average_stars());
-            preparedStatement.setString(4, user.get_votes().toString());
+            preparedStatement.setInt(3, user.get_review_count());
+            preparedStatement.setDouble(4, user.get_average_stars());
+            preparedStatement.setString(5, user.get_votes().toString());
 
             preparedStatement.executeUpdate();
             statement.close();
