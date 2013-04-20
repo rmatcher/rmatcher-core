@@ -1,0 +1,22 @@
+CREATE DATABASE rmatcher;
+use rmatcher;
+
+CREATE TABLE business (business_id VARCHAR(30) NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    full_address VARCHAR(500),
+    city VARCHAR(100) NOT NULL,
+    state VARCHAR(100) NOT NULL,
+    latitude DOUBLE NOT NULL,
+    longitude DOUBLE NOT NULL,
+    stars DOUBLE NOT NULL,
+    review_count INT NOT NULL,
+    open INT NOT NULL,
+    neighborhoods VARCHAR(500) NOT NULL,
+    categories VARCHAR(500) NOT NULL,
+    PRIMARY KEY (business_id));
+
+CREATE TABLE user (user_id VARCHAR(30) NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    average_stars DOUBLE NOT NULL,
+    votes VARCHAR(500) NOT NULL,
+    PRIMARY KEY (user_id));
