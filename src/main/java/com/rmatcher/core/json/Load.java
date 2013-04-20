@@ -2,13 +2,8 @@ package com.rmatcher.core.json;
 
 import com.google.common.base.Joiner;
 
+import java.sql.*;
 import java.util.Iterator;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 
 /**
  * Created with IntelliJ IDEA.
@@ -53,6 +48,7 @@ public class Load {
             connect = DriverManager
                     .getConnection("jdbc:mysql://localhost/rmatcher?"
                             + "user=root&password=123456");
+            connect.setAutoCommit(false);
 
             loadBusiness(connect, businessIterator);
             loadUser(connect, userIterator);
@@ -71,51 +67,60 @@ public class Load {
     }
 
     private static void loadBusiness(Connection connect, Iterator<Yelp_Business> businessIterator) throws SQLException {
-        PreparedStatement preparedStatement;
+
+        PreparedStatement statement = connect
+                .prepareStatement("INSERT INTO rmatcher.business values (?, ?, ?, ?, ? , ?, ?, ?, ?, ?, ? , ?)");
+
+        int count = 0;
         while(businessIterator.hasNext()){
             Yelp_Business business = businessIterator.next();
 
-            Statement statement = connect.createStatement();
-
-            preparedStatement = connect
-                    .prepareStatement("INSERT INTO rmatcher.business values (?, ?, ?, ?, ? , ?, ?, ?, ?, ?, ? , ?)");
-
-            preparedStatement.setString(1, business.get_business_id());
-            preparedStatement.setString(2, business.get_name());
-            preparedStatement.setString(3, business.get_full_address());
-            preparedStatement.setString(4, business.get_city());
-            preparedStatement.setString(5, business.get_state());
-            preparedStatement.setDouble(6, business.get_latitude());
-            preparedStatement.setDouble(7, business.get_longitude());
-            preparedStatement.setDouble(8, business.get_stars());
-            preparedStatement.setInt(9, business.get_review_count());
-            preparedStatement.setInt(10, business.is_open() ? 1 : 0);
-            preparedStatement.setString(11, Joiner.on(",").join(business.getNeighborhoods()));
-            preparedStatement.setString(12, Joiner.on(",").join(business.get_categories()));
-
-            preparedStatement.executeUpdate();
-            statement.close();
+            statement.setString(1, business.get_business_id());
+            statement.setString(2, business.get_name());
+            statement.setString(3, business.get_full_address());
+            statement.setString(4, business.get_city());
+            statement.setString(5, business.get_state());
+            statement.setDouble(6, business.get_latitude());
+            statement.setDouble(7, business.get_longitude());
+            statement.setDouble(8, business.get_stars());
+            statement.setInt(9, business.get_review_count());
+            statement.setInt(10, business.is_open() ? 1 : 0);
+            statement.setString(11, Joiner.on(",").join(business.getNeighborhoods()));
+            statement.setString(12, Joiner.on(",").join(business.get_categories()));
+            statement.addBatch();
+            ++count;
+            if (count % 1000 == 0) {
+                statement.executeBatch();
+                count = 0;
+            }
         }
+        statement.executeBatch();
+        connect.commit();
+        statement.close();
     }
 
     private static void loadUser(Connection connect, Iterator<Yelp_User> userIterator) throws SQLException {
-        PreparedStatement preparedStatement;
+        PreparedStatement statement = connect
+                .prepareStatement("INSERT INTO rmatcher.user values (?, ?, ?, ?, ?)");
+
+        int count = 0;
         while(userIterator.hasNext()){
             Yelp_User user = userIterator.next();
 
-            Statement statement = connect.createStatement();
-
-            preparedStatement = connect
-                    .prepareStatement("INSERT INTO rmatcher.user values (?, ?, ?, ?, ?)");
-
-            preparedStatement.setString(1, user.get_user_id());
-            preparedStatement.setString(2, user.get_name());
-            preparedStatement.setInt(3, user.get_review_count());
-            preparedStatement.setDouble(4, user.get_average_stars());
-            preparedStatement.setString(5, user.get_votes().toString());
-
-            preparedStatement.executeUpdate();
-            statement.close();
+            statement.setString(1, user.get_user_id());
+            statement.setString(2, user.get_name());
+            statement.setInt(3, user.get_review_count());
+            statement.setDouble(4, user.get_average_stars());
+            statement.setString(5, user.get_votes().toString());
+            statement.addBatch();
+            ++count;
+            if (count % 1000 == 0) {
+                statement.executeBatch();
+                count = 0;
+            }
         }
+        statement.executeBatch();
+        connect.commit();
+        statement.close();
     }
 }
