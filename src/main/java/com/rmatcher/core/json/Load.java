@@ -52,6 +52,8 @@ public class Load {
 
             loadBusiness(connect, businessIterator);
             loadUser(connect, userIterator);
+            loadCheckin(connect, checkinIterator);
+            loadReview(connect, reviewIterator);
 
         } catch (Exception e) {
             throw e;
@@ -87,6 +89,55 @@ public class Load {
             statement.setInt(10, business.is_open() ? 1 : 0);
             statement.setString(11, Joiner.on(",").join(business.getNeighborhoods()));
             statement.setString(12, Joiner.on(",").join(business.get_categories()));
+            statement.addBatch();
+            ++count;
+            if (count % 1000 == 0) {
+                statement.executeBatch();
+                count = 0;
+            }
+        }
+        statement.executeBatch();
+        connect.commit();
+        statement.close();
+    }
+
+    // load Checkin
+    private static void loadCheckin(Connection connect, Iterator<Yelp_Checkin> checkinIterator) throws SQLException {
+        PreparedStatement statement = connect
+                .prepareStatement("INSERT INTO rmatcher.checkin values (?, ?)");
+
+        int count = 0;
+        while(checkinIterator.hasNext()){
+            Yelp_Checkin checkin = checkinIterator.next();
+
+            statement.setString(1, checkin.get_business_id());
+            statement.setString(2, Joiner.on(",").join(checkin.get_checkin_info()));
+            statement.addBatch();
+            ++count;
+            if (count % 1000 == 0) {
+                statement.executeBatch();
+                count = 0;
+            }
+        }
+        statement.executeBatch();
+        connect.commit();
+        statement.close();
+    }
+
+    private static void loadReview(Connection connect, Iterator<Yelp_Review> reviewIterator) throws SQLException {
+        PreparedStatement statement = connect
+                .prepareStatement("INSERT INTO rmatcher.review values (?, ?, ?, ?, ?, ?)");
+
+        int count = 0;
+        while(reviewIterator.hasNext()){
+            Yelp_Review review = reviewIterator.next();
+
+            statement.setString(1, review.get_business_id());
+            statement.setString(2, review.get_review_id());
+            statement.setDouble(3, review.get_stars());
+            statement.setString(4, review.get_text());
+            statement.setString(5, review.get_date());
+            statement.setString(6, review.get_votes().toString());
             statement.addBatch();
             ++count;
             if (count % 1000 == 0) {
