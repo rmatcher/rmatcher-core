@@ -21,3 +21,16 @@ CREATE TABLE user (user_id VARCHAR(30) NOT NULL,
     average_stars DOUBLE NOT NULL,
     votes VARCHAR(500) NOT NULL,
     PRIMARY KEY (user_id));
+
+CREATE TABLE review (business_id VARCHAR(30) NOT NULL,
+    user_id VARCHAR(30) NOT NULL,
+    stars DOUBLE NOT NULL,
+    text TEXT NOT NULL,
+    date VARCHAR(12) NOT NULL,
+    votes VARCHAR(500) NOT NULL,
+    FOREIGN KEY (business_id) REFERENCES business (business_id),
+    FOREIGN KEY (user_id) REFERENCES user (user_id));
+
+CREATE TABLE checkin (business_id VARCHAR(30) NOT NULL,
+    votes VARCHAR(500) NOT NULL,
+    FOREIGN KEY (business_id) REFERENCES business (business_id));
