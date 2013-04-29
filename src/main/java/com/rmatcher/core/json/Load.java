@@ -126,18 +126,19 @@ public class Load {
 
     private static void loadReview(Connection connect, Iterator<Yelp_Review> reviewIterator) throws SQLException {
         PreparedStatement statement = connect
-                .prepareStatement("INSERT INTO rmatcher.review values (?, ?, ?, ?, ?, ?)");
+                .prepareStatement("INSERT INTO rmatcher.review values (?, ?, ?, ?, ?, ?, ?)");
 
         int count = 0;
         while(reviewIterator.hasNext()){
             Yelp_Review review = reviewIterator.next();
 
-            statement.setString(1, review.get_business_id());
-            statement.setString(2, review.get_review_id());
-            statement.setDouble(3, review.get_stars());
-            statement.setString(4, review.get_text());
-            statement.setString(5, review.get_date());
-            statement.setString(6, review.get_votes().toString());
+            statement.setString(1, review.get_review_id());
+            statement.setString(2, review.get_business_id());
+            statement.setString(3, review.get_user_id());
+            statement.setDouble(4, review.get_stars());
+            statement.setString(5, review.get_text());
+            statement.setString(6, review.get_date());
+            statement.setString(7, review.get_votes().toString());
             statement.addBatch();
             ++count;
             if (count % 1000 == 0) {
