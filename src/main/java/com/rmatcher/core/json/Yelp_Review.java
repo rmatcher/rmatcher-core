@@ -28,6 +28,9 @@ public class Yelp_Review {
     @SerializedName("stars")
     public double stars;
 
+    @SerializedName("text")
+    private String text;
+
     @SerializedName("votes")
     private Attr votes; // public Attr[] votes;
 
@@ -91,6 +94,14 @@ public class Yelp_Review {
         this.votes = votes;
     }
 
+    public String get_text() {
+        return text;
+    }
+
+    public void set_text(String text) {
+        this.text = text;
+    }
+
     /*
      * public List<Attr> get_votes() { return votes; }
      *
@@ -101,7 +112,7 @@ public class Yelp_Review {
         return "business_id: " + business_id + "\n" + "type_id: " + type + "\n"
                 + "date: " + date + "\n" + "review_id: " + review_id + "\n"
                 + "user_id: " + user_id + "\n" + "stars: " + stars + "\n"
-                + "votes: " + votes + "\n";
+                + "votes: " + votes + "text: " + text +  "\n";
     }
 
 }

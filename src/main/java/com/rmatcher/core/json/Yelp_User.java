@@ -19,6 +19,9 @@ public class Yelp_User {
     @SerializedName("name")
     public String name;
 
+    @SerializedName("review_count")
+    public int review_count;
+
     @SerializedName("average_stars")
     public float average_stars;
 
@@ -52,6 +55,14 @@ public class Yelp_User {
 
     public void set_name(String name) {
         this.name = name;
+    }
+
+    public int get_review_count() {
+        return review_count;
+    }
+
+    public void set_review_count(int review_count) {
+        this.review_count = review_count;
     }
 
     public float get_average_stars() {
