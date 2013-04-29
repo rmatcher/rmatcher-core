@@ -111,7 +111,7 @@ public class Load {
             Yelp_Checkin checkin = checkinIterator.next();
 
             statement.setString(1, checkin.get_business_id());
-            statement.setString(2, Joiner.on(",").join(checkin.get_checkin_info()));
+            statement.setString(2, checkin.get_checkin_info().toString());
             statement.addBatch();
             ++count;
             if (count % 1000 == 0) {
