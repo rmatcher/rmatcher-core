@@ -16,8 +16,8 @@ public class Load {
 
     public static void main(String [] args) throws Exception{
 
-        String pathToFolder = "C:\\Users\\Ameen\\Desktop\\Yelp\\";
-        //String pathToFolder = "/Users/santoki/yelp/yelp_phoenix_academic_dataset/";
+        //String pathToFolder = "C:\\Users\\Ameen\\Desktop\\Yelp\\";
+        String pathToFolder = "/Users/santoki/yelp/yelp_phoenix_academic_dataset/";
 
         String businessFilePath = pathToFolder + "yelp_academic_dataset_business.json";
         String checkinFilePath = pathToFolder + "yelp_academic_dataset_checkin.json";

@@ -13,7 +13,8 @@ import java.util.Set;
 import java.util.Vector;
 
 public class SWN3 {
-    private String pathToSWN = "target\\classes\\SentiWordNet_3.0.0_20130122.txt";
+    //private String pathToSWN = "target\\classes\\SentiWordNet_3.0.0_20130122.txt";
+    private String pathToSWN = "target/classes/SentiWordNet_3.0.0_20130122.txt";
     private HashMap<String, String> _dict;
 
     public SWN3() {

@@ -19,7 +19,8 @@ public class SentimentScoring {
     public SentimentScoring() {
         this.swn3 = new SWN3();
         try{
-            this.tagger = new MaxentTagger("target\\classes\\wsj-0-18-left3words.tagger");
+            //this.tagger = new MaxentTagger("target\\classes\\wsj-0-18-left3words.tagger");
+            this.tagger = new MaxentTagger("target/classes/wsj-0-18-left3words.tagger");
         } catch(Exception e){
             throw new RuntimeException("Check the Stanford NLP tagger model file. "+e.getMessage());
         }
