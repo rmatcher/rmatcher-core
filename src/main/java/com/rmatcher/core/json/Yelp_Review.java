@@ -19,9 +19,6 @@ public class Yelp_Review {
     @SerializedName("date")
     public String date;
 
-    @SerializedName("review_id")
-    public String review_id;
-
     @SerializedName("user_id")
     public String user_id;
 
@@ -60,14 +57,6 @@ public class Yelp_Review {
 
     public void get_date(String date) {
         this.date = date;
-    }
-
-    public String get_review_id() {
-        return review_id;
-    }
-
-    public void get_review_id(String review_id) {
-        this.review_id = review_id;
     }
 
     public String get_user_id() {
@@ -110,7 +99,7 @@ public class Yelp_Review {
     @Override
     public String toString() {
         return "business_id: " + business_id + "\n" + "type_id: " + type + "\n"
-                + "date: " + date + "\n" + "review_id: " + review_id + "\n"
+                + "date: " + date + "\n"
                 + "user_id: " + user_id + "\n" + "stars: " + stars + "\n"
                 + "votes: " + votes + "text: " + text +  "\n";
     }
