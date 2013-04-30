@@ -28,7 +28,7 @@ CREATE TABLE review (business_id VARCHAR(30) NOT NULL,
     text TEXT NOT NULL,
     date VARCHAR(12) NOT NULL,
     votes VARCHAR(500) NOT NULL,
-    FOREIGN KEY (business_id) REFERENCES business (business_id)
+    FOREIGN KEY (business_id) REFERENCES business (business_id),
     FOREIGN KEY (user_id) REFERENCES user (user_id));
 
 CREATE TABLE checkin (business_id VARCHAR(30) NOT NULL,
@@ -38,6 +38,9 @@ CREATE TABLE checkin (business_id VARCHAR(30) NOT NULL,
 
 
 --DELETE 14028 reviews that we don't have the author user
-DELETE FROM `review` WHERE user_id NOT IN (SELECT user_id FROM user)
+-- @Ameen, In my current build, I didn't include this section.
+-- Need explaination as to why...
 
-ALTER TABLE review ADD FOREIGN KEY (user_Id) REFERENCES user(user_Id)
+-- DELETE FROM `review` WHERE user_id NOT IN (SELECT user_id FROM user)
+
+-- ALTER TABLE review ADD FOREIGN KEY (user_Id) REFERENCES user(user_Id)
