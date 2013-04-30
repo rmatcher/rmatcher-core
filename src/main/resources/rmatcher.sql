@@ -22,8 +22,7 @@ CREATE TABLE user (user_id VARCHAR(30) NOT NULL,
     votes VARCHAR(500) NOT NULL,
     PRIMARY KEY (user_id));
 
-CREATE TABLE review (
-    business_id VARCHAR(30) NOT NULL,
+CREATE TABLE review (business_id VARCHAR(30) NOT NULL,
     user_id VARCHAR(30) NOT NULL,
     stars DOUBLE NOT NULL,
     text TEXT NOT NULL,
