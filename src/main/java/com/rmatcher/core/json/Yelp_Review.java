@@ -34,6 +34,11 @@ public class Yelp_Review {
     public Yelp_Review() {
     }
 
+    public Yelp_Review(String user_id, Double stars) {
+        this.user_id = user_id;
+        this.stars = stars;
+    }
+
     // get/set methods
     public String get_business_id() {
         return business_id;

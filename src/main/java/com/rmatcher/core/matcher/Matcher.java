@@ -8,6 +8,7 @@ package com.rmatcher.core.matcher;
  */
 
 import com.rmatcher.core.json.Yelp_Business;
+import com.rmatcher.core.json.Yelp_Review;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -36,19 +37,13 @@ public class Matcher {
             statement = connect
                     .prepareStatement("SELECT user_id, stars FROM rmatcher.review WHERE business_id = ?");
 
-            for (Yelp_Business rs : userRatedBusinesses) {
-                statement.setString(1, rs.get_business_id());
-                statement.execute();
-                resultSet = statement.getResultSet();
-                System.out.println("\nFor Business: " + rs.get_business_id());
-                System.out.println("============================");
-                while (resultSet.next()) {
-                    System.out.println("\tU " + resultSet.getString("user_id")
-                            + " " + resultSet.getDouble("stars"));
-                }
-            }
+            ArrayList<Yelp_Review> uRB = getBusinessReview(userRatedBusinesses, statement, resultSet, connect);
 
-            statement.close();
+            //Print all the users who have also rated same as selected user for each business
+            for (Yelp_Review k : uRB) {
+                System.out.println("User: " + k.get_user_id() + " stars:" + k.get_stars());
+
+            }
 
         } catch (Exception e) {
             throw e;
@@ -62,7 +57,12 @@ public class Matcher {
             }
         }
     }
-    public static ArrayList<Yelp_Business> getListOfBusinessesFromUser(String user_id, PreparedStatement statement, ResultSet resultSet, Connection connect) throws SQLException{
+
+    public static ArrayList<Yelp_Business> getListOfBusinessesFromUser(String user_id,
+                                                                       PreparedStatement statement,
+                                                                       ResultSet resultSet,
+                                                                       Connection connect) throws SQLException{
+
         ArrayList<Yelp_Business> userRatedBusinesses = new ArrayList<Yelp_Business>();
         try{
             statement.setString(1, user_id);
@@ -74,18 +74,32 @@ public class Matcher {
             }
         }  catch (Exception e) {
             throw e;
-        } finally {
-            if (resultSet != null) {
-                resultSet.close();
-            }
-
-            if (connect != null) {
-                connect.close();
-            }
         }
 
         statement.close();
         return userRatedBusinesses;
+    }
+
+    public static ArrayList<Yelp_Review> getBusinessReview(ArrayList<Yelp_Business> yr,
+                                                           PreparedStatement statement,
+                                                           ResultSet resultSet,
+                                                           Connection connect) throws SQLException{
+
+        ArrayList<Yelp_Review> businessesReviewed = new ArrayList<Yelp_Review>();
+
+        for (Yelp_Business yb : yr) {
+            statement.setString(1, yb.get_business_id());
+            statement.execute();
+            resultSet = statement.getResultSet();
+            while (resultSet.next()) {
+                Yelp_Review yreview = new Yelp_Review(resultSet.getString("user_id"), resultSet.getDouble("stars"));
+                businessesReviewed.add(yreview);
+            }
+        }
+
+        statement.close();
+
+        return businessesReviewed;
     }
 
 
