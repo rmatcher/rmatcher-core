@@ -9,10 +9,7 @@ package com.rmatcher.core.matcher;
 
 import com.rmatcher.core.json.Yelp_Business;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -33,21 +30,8 @@ public class Matcher {
             PreparedStatement statement = connect
                     .prepareStatement("SELECT business_id, stars FROM rmatcher.review WHERE user_id = ?");
 
-            statement.setString(1, "UrgzxV2ohsEleWOWuAU75w");
-            statement.execute();
-            resultSet = statement.getResultSet();
-            System.out.println("User: " + "UrgzxV2ohsEleWOWuAU75w");
-
             // Creating List of User reviewed Businesses
-            ArrayList<Yelp_Business> userRatedBusinesses = new ArrayList<Yelp_Business>();
-
-            while (resultSet.next()) {
-                Yelp_Business yb = new Yelp_Business(resultSet.getString("business_id"), resultSet.getDouble("stars"));
-                userRatedBusinesses.add(yb);
-            }
-
-            statement.close();
-
+            ArrayList<Yelp_Business> userRatedBusinesses = getListOfBusinessesFromUser("UrgzxV2ohsEleWOWuAU75w", statement, resultSet, connect);
 
             statement = connect
                     .prepareStatement("SELECT user_id, stars FROM rmatcher.review WHERE business_id = ?");
@@ -64,7 +48,6 @@ public class Matcher {
                 }
             }
 
-
             statement.close();
 
         } catch (Exception e) {
@@ -78,9 +61,31 @@ public class Matcher {
                 connect.close();
             }
         }
+    }
+    public static ArrayList<Yelp_Business> getListOfBusinessesFromUser(String user_id, PreparedStatement statement, ResultSet resultSet, Connection connect) throws SQLException{
+        ArrayList<Yelp_Business> userRatedBusinesses = new ArrayList<Yelp_Business>();
+        try{
+            statement.setString(1, user_id);
+            statement.execute();
+            resultSet = statement.getResultSet();
+            while (resultSet.next()) {
+                Yelp_Business yb = new Yelp_Business(resultSet.getString("business_id"), resultSet.getDouble("stars"));
+                userRatedBusinesses.add(yb);
+            }
+        }  catch (Exception e) {
+            throw e;
+        } finally {
+            if (resultSet != null) {
+                resultSet.close();
+            }
 
+            if (connect != null) {
+                connect.close();
+            }
+        }
 
-
+        statement.close();
+        return userRatedBusinesses;
     }
 
 
