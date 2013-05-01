@@ -7,6 +7,7 @@ package com.rmatcher.core.json;
  * Time: 12:03 PM
  * To change this template use File | Settings | File Templates.
  */
+import com.google.common.base.Preconditions;
 import com.google.gson.annotations.SerializedName;
 
 public class Yelp_Review {
@@ -18,6 +19,9 @@ public class Yelp_Review {
 
     @SerializedName("date")
     public String date;
+
+    @SerializedName("review_id")
+    public String review_id;
 
     @SerializedName("user_id")
     public String user_id;
@@ -35,8 +39,8 @@ public class Yelp_Review {
     }
 
     public Yelp_Review(String user_id, Double stars) {
-        this.user_id = user_id;
-        this.stars = stars;
+        this.user_id = Preconditions.checkNotNull(user_id);
+        this.stars = Preconditions.checkNotNull(stars);
     }
 
     // get/set methods
@@ -62,6 +66,14 @@ public class Yelp_Review {
 
     public void get_date(String date) {
         this.date = date;
+    }
+
+    public String get_review_id() {
+        return review_id;
+    }
+
+    public void get_review_id(String review_id) {
+        this.review_id = review_id;
     }
 
     public String get_user_id() {
@@ -104,7 +116,7 @@ public class Yelp_Review {
     @Override
     public String toString() {
         return "business_id: " + business_id + "\n" + "type_id: " + type + "\n"
-                + "date: " + date + "\n"
+                + "date: " + date + "\n" + "review_id: " + review_id + "\n"
                 + "user_id: " + user_id + "\n" + "stars: " + stars + "\n"
                 + "votes: " + votes + "text: " + text +  "\n";
     }
