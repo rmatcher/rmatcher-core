@@ -31,8 +31,9 @@ public class Matcher {
             PreparedStatement statement = connect
                     .prepareStatement("SELECT business_id, stars FROM rmatcher.review WHERE user_id = ?");
 
+            String user = "UrgzxV2ohsEleWOWuAU75w";
             // Creating List of User reviewed Businesses
-            ArrayList<Yelp_Business> userRatedBusinesses = getListOfBusinessesFromUser("UrgzxV2ohsEleWOWuAU75w", statement, resultSet, connect);
+            ArrayList<Yelp_Business> userRatedBusinesses = getListOfBusinessesFromUser(user, statement, resultSet, connect);
 
             statement = connect
                     .prepareStatement("SELECT user_id, stars FROM rmatcher.review WHERE business_id = ?");
@@ -40,9 +41,14 @@ public class Matcher {
             ArrayList<Yelp_Review> uRB = getBusinessReview(userRatedBusinesses, statement, resultSet, connect);
 
             //Print all the users who have also rated same as selected user for each business
+            System.out.println("User " + user + " has rated the following businesses:" );
+            for (Yelp_Business yb : userRatedBusinesses) {
+                System.out.println("B: " + yb.get_business_id() + " stars:" + yb.get_stars());
+            }
+            System.out.println("==============================" );
+            System.out.println("The following users have made these reviews for the businesses rated by " + user + " :" );
             for (Yelp_Review k : uRB) {
                 System.out.println("User: " + k.get_user_id() + " stars:" + k.get_stars());
-
             }
 
         } catch (Exception e) {
