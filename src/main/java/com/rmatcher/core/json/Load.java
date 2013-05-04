@@ -55,8 +55,7 @@ public class Load {
             loadUser(connect, userIterator);
             loadCheckin(connect, checkinIterator);
             loadReview(connect, reviewIterator);
-            insertTestSet(connect);
-
+            insertTestCase(connect);
         } catch (Exception e) {
             throw e;
         } finally {
@@ -70,54 +69,12 @@ public class Load {
         }
     }
 
-    private static void insertTestSet(Connection connect) throws SQLException{
+    private static void insertTestCase(Connection connect) throws SQLException {
+        PreparedStatement statement = connect
+                .prepareStatement("INSERT INTO rmatcher.business values (?, ?, ?, ?, ? , ?, ?, ?, ?, ?, ? , ?)");
 
-        System.out.println("fin");
+        int count = 0;
     }
-
-    /*
-    private static void createViewWithCountTable(Connection connect){
-
-        Statement stmt;
-        String createString;
-        createString = ("CREATE TABLE rmatcher.viewWithCount (user_id VARCHAR(30) NOT NULL, userTotalReview INT NOT NULL);");
-        try {
-            stmt = connect.createStatement();
-            stmt.executeUpdate(createString);
-            stmt.close();
-        } catch(SQLException ex) {
-            System.err.println("SQLException: " + ex.getMessage());
-        }
-    }
-
-    private static void createViewSelectionTable(Connection connect){
-
-        Statement stmt;
-        String createString;
-        createString = ("CREATE TABLE rmatcher.viewSelection (user_id VARCHAR(30) NOT NULL, userTotalReview INT NOT NULL, onlyThirtyPercent INT NOT NULL);");
-        try {
-            stmt = connect.createStatement();
-            stmt.executeUpdate(createString);
-            stmt.close();
-        } catch(SQLException ex) {
-            System.err.println("SQLException: " + ex.getMessage());
-        }
-    }
-
-    private static void createViewTestCaseTable(Connection connect){
-
-        Statement stmt;
-        String createString;
-        createString = ("CREATE TABLE rmatcher.viewTestCase (user_id VARCHAR(30) NOT NULL, review_id VARCHAR(30) NOT NULL);");
-        try {
-            stmt = connect.createStatement();
-            stmt.executeUpdate(createString);
-            stmt.close();
-        } catch(SQLException ex) {
-            System.err.println("SQLException: " + ex.getMessage());
-        }
-    }
-    */
 
     private static void loadBusiness(Connection connect, Iterator<Yelp_Business> businessIterator) throws SQLException {
 
