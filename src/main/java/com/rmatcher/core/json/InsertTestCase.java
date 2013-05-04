@@ -30,10 +30,8 @@ public class InsertTestCase {
 
             List<TestCase> userTestlist = getUserTestCase(connect);
             Iterator<TestCase> userTestIterator = userTestlist.iterator();
+            insertTestCase(connect, userTestIterator);
 
-            for (TestCase s : userTestlist) {
-                insertTestCase(connect, userTestIterator);
-            }
         } catch (Exception e) {
             throw e;
         } finally {
