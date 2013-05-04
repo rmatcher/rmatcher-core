@@ -35,6 +35,14 @@ CREATE TABLE checkin (business_id VARCHAR(30) NOT NULL,
     checkins VARCHAR(2000) NOT NULL,
     FOREIGN KEY (business_id) REFERENCES business (business_id));
 
+CREATE TABLE viewWithCount (user_id VARCHAR(30) NOT NULL,
+    userTotalReview INT NOT NULL);
+
+CREATE TABLE viewSelection (user_id VARCHAR(30) NOT NULL,
+    userTotalReview INT NOT NULL, onlyThirtyPercent INT NOT NULL);
+
+CREATE TABLE viewTestCase (user_id VARCHAR(30) NOT NULL,
+    review_id VARCHAR(30) NOT NULL);
 
 
 --DELETE 14028 reviews that we don't have the author user

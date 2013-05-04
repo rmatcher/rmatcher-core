@@ -16,8 +16,8 @@ public class Load {
 
     public static void main(String [] args) throws Exception{
 
-        String pathToFolder = "C:\\Users\\Ameen\\Desktop\\Yelp\\";
-        //String pathToFolder = "/Users/santoki/yelp/yelp_phoenix_academic_dataset/";
+        //String pathToFolder = "C:\\Users\\Ameen\\Desktop\\Yelp\\";
+        String pathToFolder = "/Users/santoki/yelp/yelp_phoenix_academic_dataset/";
 
         String businessFilePath = pathToFolder + "yelp_academic_dataset_business.json";
         String checkinFilePath = pathToFolder + "yelp_academic_dataset_checkin.json";
@@ -47,13 +47,15 @@ public class Load {
             Class.forName("com.mysql.jdbc.Driver");
             connect = DriverManager
                     .getConnection("jdbc:mysql://localhost/rmatcher?"
-                            + "user=root&password=123456");
+                            //+ "user=root&password=123456");
+                            + "user=root&password=");
             connect.setAutoCommit(false);
 
             loadBusiness(connect, businessIterator);
             loadUser(connect, userIterator);
             loadCheckin(connect, checkinIterator);
             loadReview(connect, reviewIterator);
+            insertTestSet(connect);
 
         } catch (Exception e) {
             throw e;
@@ -67,6 +69,55 @@ public class Load {
             }
         }
     }
+
+    private static void insertTestSet(Connection connect) throws SQLException{
+
+        System.out.println("fin");
+    }
+
+    /*
+    private static void createViewWithCountTable(Connection connect){
+
+        Statement stmt;
+        String createString;
+        createString = ("CREATE TABLE rmatcher.viewWithCount (user_id VARCHAR(30) NOT NULL, userTotalReview INT NOT NULL);");
+        try {
+            stmt = connect.createStatement();
+            stmt.executeUpdate(createString);
+            stmt.close();
+        } catch(SQLException ex) {
+            System.err.println("SQLException: " + ex.getMessage());
+        }
+    }
+
+    private static void createViewSelectionTable(Connection connect){
+
+        Statement stmt;
+        String createString;
+        createString = ("CREATE TABLE rmatcher.viewSelection (user_id VARCHAR(30) NOT NULL, userTotalReview INT NOT NULL, onlyThirtyPercent INT NOT NULL);");
+        try {
+            stmt = connect.createStatement();
+            stmt.executeUpdate(createString);
+            stmt.close();
+        } catch(SQLException ex) {
+            System.err.println("SQLException: " + ex.getMessage());
+        }
+    }
+
+    private static void createViewTestCaseTable(Connection connect){
+
+        Statement stmt;
+        String createString;
+        createString = ("CREATE TABLE rmatcher.viewTestCase (user_id VARCHAR(30) NOT NULL, review_id VARCHAR(30) NOT NULL);");
+        try {
+            stmt = connect.createStatement();
+            stmt.executeUpdate(createString);
+            stmt.close();
+        } catch(SQLException ex) {
+            System.err.println("SQLException: " + ex.getMessage());
+        }
+    }
+    */
 
     private static void loadBusiness(Connection connect, Iterator<Yelp_Business> businessIterator) throws SQLException {
 
