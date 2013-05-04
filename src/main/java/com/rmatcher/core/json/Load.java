@@ -16,8 +16,8 @@ public class Load {
 
     public static void main(String [] args) throws Exception{
 
-        //String pathToFolder = "C:\\Users\\Ameen\\Desktop\\Yelp\\";
-        String pathToFolder = "/Users/santoki/yelp/yelp_phoenix_academic_dataset/";
+        String pathToFolder = "C:\\Users\\Ameen\\Desktop\\Yelp\\";
+        //String pathToFolder = "/Users/santoki/yelp/yelp_phoenix_academic_dataset/";
 
         String businessFilePath = pathToFolder + "yelp_academic_dataset_business.json";
         String checkinFilePath = pathToFolder + "yelp_academic_dataset_checkin.json";
@@ -47,15 +47,13 @@ public class Load {
             Class.forName("com.mysql.jdbc.Driver");
             connect = DriverManager
                     .getConnection("jdbc:mysql://localhost/rmatcher?"
-                            //+ "user=root&password=123456");
-                            + "user=root&password=");
+                            + "user=root&password=123456");
             connect.setAutoCommit(false);
 
             loadBusiness(connect, businessIterator);
             loadUser(connect, userIterator);
             loadCheckin(connect, checkinIterator);
             loadReview(connect, reviewIterator);
-            insertTestCase(connect);
         } catch (Exception e) {
             throw e;
         } finally {
@@ -67,13 +65,6 @@ public class Load {
                 connect.close();
             }
         }
-    }
-
-    private static void insertTestCase(Connection connect) throws SQLException {
-        PreparedStatement statement = connect
-                .prepareStatement("INSERT INTO rmatcher.business values (?, ?, ?, ?, ? , ?, ?, ?, ?, ?, ? , ?)");
-
-        int count = 0;
     }
 
     private static void loadBusiness(Connection connect, Iterator<Yelp_Business> businessIterator) throws SQLException {

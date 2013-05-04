@@ -18,4 +18,5 @@ GROUP BY review_id
 ORDER BY  VS.user_id ASC
 
 CREATE TABLE viewTestCase(user_id VARCHAR(30) NOT NULL,
+    review_id VARCHAR(30) NOT NULL,
     review_count INT NOT NULL);
