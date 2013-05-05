@@ -3,6 +3,7 @@ package com.rmatcher.core.json;
 import com.google.common.base.Joiner;
 
 import java.sql.*;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
@@ -27,8 +28,8 @@ public class InsertTestCase {
                             //+ "user=root&password=123456");
                             + "user=root&password=");
             connect.setAutoCommit(false);
-
             List<TestCase> userTestlist = getUserTestCase(connect);
+            shuffleList(userTestlist);
             Iterator<TestCase> userTestIterator = userTestlist.iterator();
             insertTestCase(connect, userTestIterator);
 
@@ -38,6 +39,22 @@ public class InsertTestCase {
             if (connect != null) {
                 connect.close();
             }
+        }
+    }
+
+    private static void shuffleList(List<TestCase> userTestlist) {
+        List<TestCase> og = new ArrayList<>(userTestlist);
+        int start = 0;
+        int end = 0;
+        int size = 0;
+        for(int i=0; i < userTestlist.size(); i+=size){ //
+            size = userTestlist.get(i).getTotalCount();
+            end += size;
+            Collections.shuffle(userTestlist.subList(start, end));
+            start = end;
+        }
+        for(int i=0; i < userTestlist.size(); i++){ //
+            System.out.println(userTestlist.get(i).getUser_id() + ": " + userTestlist.get(i).getReview_id() + " "+og.get(i).getTotalCount()+" " + og.get(i).getReview_id());
         }
     }
 
@@ -55,7 +72,7 @@ public class InsertTestCase {
 
             if (!userID.equals(user.getUser_id())){
                 userID = user.getUser_id();                               // current user's ID
-                System.out.println(userID);
+                //System.out.println(userID);
                 currentUserCnt = 0;
                 thirtyPercent = (int)Math.ceil(user.getTotalCount()*.3);  // find 30%
             }
