@@ -25,8 +25,8 @@ public class InsertTestCase {
             Class.forName("com.mysql.jdbc.Driver");
             connect = DriverManager
                     .getConnection("jdbc:mysql://localhost/rmatcher?"
-                            //+ "user=root&password=123456");
-                            + "user=root&password=");
+                            + "user=root&password=123456");
+                            //+ "user=root&password=");
             connect.setAutoCommit(false);
             List<TestCase> userTestlist = getUserTestCase(connect);
             shuffleList(userTestlist);
@@ -43,7 +43,6 @@ public class InsertTestCase {
     }
 
     private static void shuffleList(List<TestCase> userTestlist) {
-        List<TestCase> og = new ArrayList<>(userTestlist);
         int start = 0;
         int end = 0;
         int size = 0;
@@ -52,9 +51,6 @@ public class InsertTestCase {
             end += size;
             Collections.shuffle(userTestlist.subList(start, end));
             start = end;
-        }
-        for(int i=0; i < userTestlist.size(); i++){ //
-            System.out.println(userTestlist.get(i).getUser_id() + ": " + userTestlist.get(i).getReview_id() + " "+og.get(i).getTotalCount()+" " + og.get(i).getReview_id());
         }
     }
 
@@ -72,7 +68,6 @@ public class InsertTestCase {
 
             if (!userID.equals(user.getUser_id())){
                 userID = user.getUser_id();                               // current user's ID
-                //System.out.println(userID);
                 currentUserCnt = 0;
                 thirtyPercent = (int)Math.ceil(user.getTotalCount()*.3);  // find 30%
             }
