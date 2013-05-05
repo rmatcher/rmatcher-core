@@ -57,12 +57,6 @@ public class Yelp_Business {
     public Yelp_Business() {
     }
 
-    // Add basic
-    public Yelp_Business(String business_id, Double stars) {
-        this.business_id = Preconditions.checkNotNull(business_id);
-        this.stars = Preconditions.checkNotNull(stars);
-    }
-
     // get/set methods
     public String get_type() {
         return type;

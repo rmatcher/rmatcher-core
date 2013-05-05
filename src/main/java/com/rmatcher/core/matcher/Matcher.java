@@ -7,23 +7,23 @@ package com.rmatcher.core.matcher;
  * Time: 8:19 PM
  */
 
+import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.rmatcher.core.json.Yelp_Business;
-import com.rmatcher.core.json.Yelp_Review;
+import java.util.*;
 
 public class Matcher {
 
     public static void main(String [] args) throws Exception {
 
         Connection connect = null;
+        PearsonsCorrelation cor = new PearsonsCorrelation();
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
@@ -31,20 +31,26 @@ public class Matcher {
                     .getConnection("jdbc:mysql://localhost/rmatcher?user=root&password=");
             connect.setAutoCommit(false);
 
-            String user = "UrgzxV2ohsEleWOWuAU75w";
-            // Creating List of User reviewed Businesses
-            List<Yelp_Business> userRatedBusinesses = getListOfBusinessesFromUser(user, connect);
-            List<Yelp_Review> reviews = getReviewsForBusinesses(userRatedBusinesses, connect);
+            String user = "YzNZNgpOy9tthDnczS_ajg";
 
-            //Print all the users who have also rated same as selected user for each business
-            System.out.println("User " + user + " has rated the following businesses:");
-            for (Yelp_Business yb : userRatedBusinesses) {
-                System.out.println("B: " + yb.get_business_id() + " stars:" + yb.get_stars());
-            }
+            Map<String, Double> userRatedBusinesses = getListOfBusinessesFromUser(user, connect);
+            Map<String, Map<String, Double>> commonReviewsByUser = getReviewsForBusinesses(userRatedBusinesses.keySet(), connect);
 
-            System.out.println("The following users have made these reviews for the businesses rated by " + user + " :" );
-            for (Yelp_Review k : reviews) {
-                System.out.println("User: " + k.get_user_id() + " stars:" + k.get_stars());
+            for (String user_id : commonReviewsByUser.keySet()) {
+                Map<String, Double> reviews = commonReviewsByUser.get(user_id);
+                double[][] xyRatings = new double[reviews.size()][2];
+                int i = 0;
+                for(String biz : reviews.keySet()){
+                    xyRatings[i][0] = reviews.get(biz);
+                    xyRatings[i][1] = userRatedBusinesses.get(biz);
+                    i++;
+                }
+                if(i > 1){
+                    RealMatrix rm = cor.computeCorrelationMatrix(xyRatings);
+
+                    System.out.println(rm.toString());
+                }
+
             }
 
         } catch (Exception e) {
@@ -56,10 +62,10 @@ public class Matcher {
         }
     }
 
-    public static List<Yelp_Business> getListOfBusinessesFromUser(String user_id, Connection connect)
+    public static Map<String, Double> getListOfBusinessesFromUser(String user_id, Connection connect)
             throws SQLException{
 
-        List<Yelp_Business> userRatedBusinesses = new ArrayList<Yelp_Business>();
+        Map<String, Double> userRatedBusinesses = new HashMap<>();
         ResultSet resultSet = null;
         PreparedStatement statement = connect
                 .prepareStatement("SELECT business_id, stars FROM rmatcher.review WHERE user_id = ?");
@@ -69,8 +75,7 @@ public class Matcher {
             statement.execute();
             resultSet = statement.getResultSet();
             while (resultSet.next()) {
-                Yelp_Business yb = new Yelp_Business(resultSet.getString("business_id"), resultSet.getDouble("stars"));
-                userRatedBusinesses.add(yb);
+                userRatedBusinesses.put(resultSet.getString("business_id"), resultSet.getDouble("stars"));
             }
         }  catch (Exception e) {
             throw e;
@@ -84,22 +89,29 @@ public class Matcher {
         return userRatedBusinesses;
     }
 
-    public static List<Yelp_Review> getReviewsForBusinesses(List<Yelp_Business> yr, Connection connect)
+    public static Map<String, Map<String, Double>> getReviewsForBusinesses(Set<String> bizSet, Connection connect)
             throws SQLException{
 
-        List<Yelp_Review> businessesReviewed = new ArrayList<Yelp_Review>();
+        Map<String, Map<String, Double>> reviews = new HashMap<String, Map<String, Double>>();
+
         ResultSet resultSet = null;
         PreparedStatement statement = connect
                 .prepareStatement("SELECT user_id, stars FROM rmatcher.review WHERE business_id = ?");
 
         try{
-            for (Yelp_Business yb : yr) {
-                statement.setString(1, yb.get_business_id());
+            for (String biz : bizSet) {
+                statement.setString(1, biz);
                 statement.execute();
                 resultSet = statement.getResultSet();
                 while (resultSet.next()) {
-                    Yelp_Review yreview = new Yelp_Review(resultSet.getString("user_id"), resultSet.getDouble("stars"));
-                    businessesReviewed.add(yreview);
+                    String user_id = resultSet.getString("user_id");
+                    Double stars = resultSet.getDouble("stars");
+
+                    if(!reviews.containsKey("user_id")){
+                        reviews.put(user_id, new HashMap<String, Double>());
+                    }
+
+                    reviews.get(user_id).put(biz, stars);
                 }
             }
         }  catch (Exception e) {
@@ -112,7 +124,7 @@ public class Matcher {
             statement.close();
         }
 
-        return businessesReviewed;
+        return reviews;
     }
 
 

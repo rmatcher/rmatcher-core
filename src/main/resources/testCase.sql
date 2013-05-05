@@ -5,7 +5,7 @@ GROUP BY user_id;
 CREATE TABLE viewSelection
 SELECT user_id, userTotalReview, ceil('userTotalReview'*.3) as onlyThirtyPercent FROM
 viewWithCount
-WHERE userTotalReview >= 1 AND userTotalReview <= 200
+WHERE userTotalReview >= 5 AND userTotalReview <= 200
 GROUP BY user_id
 ORDER BY RAND()
 LIMIT 15;
