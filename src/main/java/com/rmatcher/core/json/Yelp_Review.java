@@ -7,6 +7,7 @@ package com.rmatcher.core.json;
  * Time: 12:03 PM
  * To change this template use File | Settings | File Templates.
  */
+import com.google.common.base.Preconditions;
 import com.google.gson.annotations.SerializedName;
 
 public class Yelp_Review {
@@ -35,6 +36,11 @@ public class Yelp_Review {
     private Attr votes; // public Attr[] votes;
 
     public Yelp_Review() {
+    }
+
+    public Yelp_Review(String user_id, Double stars) {
+        this.user_id = Preconditions.checkNotNull(user_id);
+        this.stars = Preconditions.checkNotNull(stars);
     }
 
     // get/set methods

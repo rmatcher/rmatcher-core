@@ -9,6 +9,7 @@ package com.rmatcher.core.json;
  */
 import java.util.List;
 
+import com.google.common.base.Preconditions;
 import com.google.gson.annotations.SerializedName;
 
 public class Yelp_Business {
@@ -54,6 +55,12 @@ public class Yelp_Business {
 
     // const
     public Yelp_Business() {
+    }
+
+    // Add basic
+    public Yelp_Business(String business_id, Double stars) {
+        this.business_id = Preconditions.checkNotNull(business_id);
+        this.stars = Preconditions.checkNotNull(stars);
     }
 
     // get/set methods
