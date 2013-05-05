@@ -25,8 +25,8 @@ public class InsertTestCase {
             Class.forName("com.mysql.jdbc.Driver");
             connect = DriverManager
                     .getConnection("jdbc:mysql://localhost/rmatcher?"
-                            + "user=root&password=123456");
-                            //+ "user=root&password=");
+                            //+ "user=root&password=123456");
+                            + "user=root&password=");
             connect.setAutoCommit(false);
             List<TestCase> userTestlist = getUserTestCase(connect);
             shuffleList(userTestlist);
