@@ -1,7 +1,5 @@
 package com.rmatcher.core.json;
 
-import com.google.common.base.Joiner;
-
 import java.sql.*;
 import java.util.Collections;
 import java.util.Iterator;
@@ -24,8 +22,7 @@ public class InsertTestCase {
         try {
             Class.forName("com.mysql.jdbc.Driver");
             connect = DriverManager
-                    .getConnection("jdbc:mysql://localhost/rmatcher?"
-                            + "user=root&password=");
+                    .getConnection("jdbc:mysql://localhost/rmatcher?user=root&password=");
             connect.setAutoCommit(false);
             List<TestCase> userTestlist = getUserTestCase(connect);
             shuffleList(userTestlist);

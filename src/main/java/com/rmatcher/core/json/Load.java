@@ -2,8 +2,10 @@ package com.rmatcher.core.json;
 
 import com.google.common.base.Joiner;
 
+import java.io.FileInputStream;
 import java.sql.*;
 import java.util.Iterator;
+import java.util.Properties;
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,8 +18,10 @@ public class Load {
 
     public static void main(String [] args) throws Exception{
 
-        String pathToFolder = "/home/ameen/Desktop/";
-        //String pathToFolder = "/Users/santoki/yelp/yelp_phoenix_academic_dataset/";
+        Properties prop = new Properties();
+
+        prop.load(new FileInputStream("target/classes/config.properties"));
+        String pathToFolder = prop.getProperty("dataSetPath");
 
         String businessFilePath = pathToFolder + "yelp_academic_dataset_business.json";
         String checkinFilePath = pathToFolder + "yelp_academic_dataset_checkin.json";
@@ -46,8 +50,7 @@ public class Load {
         try {
             Class.forName("com.mysql.jdbc.Driver");
             connect = DriverManager
-                    .getConnection("jdbc:mysql://localhost/rmatcher?"
-                            + "user=root&password=");
+                    .getConnection("jdbc:mysql://localhost/rmatcher?user=root&password=");
             connect.setAutoCommit(false);
 
             loadBusiness(connect, businessIterator);

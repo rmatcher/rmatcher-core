@@ -28,9 +28,7 @@ public class Matcher {
         try {
             Class.forName("com.mysql.jdbc.Driver");
             connect = DriverManager
-                    .getConnection("jdbc:mysql://localhost/rmatcher?"
-                            //+ "user=root&password=123456");
-                            + "user=root&password=");   // problem with xampp
+                    .getConnection("jdbc:mysql://localhost/rmatcher?user=root&password=");
             connect.setAutoCommit(false);
 
             String user = "UrgzxV2ohsEleWOWuAU75w";
