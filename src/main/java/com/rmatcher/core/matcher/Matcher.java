@@ -9,6 +9,9 @@ package com.rmatcher.core.matcher;
 
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
+import org.apache.mahout.common.distance.DistanceMeasure;
+import org.apache.mahout.common.distance.EuclideanDistanceMeasure;
+import org.apache.mahout.math.*;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -17,13 +20,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import java.util.*;
+import java.util.Arrays;
 
 public class Matcher {
 
     public static void main(String [] args) throws Exception {
 
         Connection connect = null;
-        PearsonsCorrelation cor = new PearsonsCorrelation();
+        PearsonsCorrelation pearsonsCorrelation = new PearsonsCorrelation();
+        DistanceMeasure  euclideanDistanceMeasure = new EuclideanDistanceMeasure();
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
@@ -39,16 +44,23 @@ public class Matcher {
             for (String user_id : commonReviewsByUser.keySet()) {
                 Map<String, Double> reviews = commonReviewsByUser.get(user_id);
                 double[][] xyRatings = new double[reviews.size()][2];
+                org.apache.mahout.math.Vector x = new SequentialAccessSparseVector(reviews.size());
+                org.apache.mahout.math.Vector y = new SequentialAccessSparseVector(reviews.size());
+
                 int i = 0;
                 for(String biz : reviews.keySet()){
                     xyRatings[i][0] = reviews.get(biz);
+                    x.set(i, reviews.get(biz));
                     xyRatings[i][1] = userRatedBusinesses.get(biz);
+                    y.set(i, userRatedBusinesses.get(biz));
                     i++;
                 }
                 if(i > 1){
-                    RealMatrix rm = cor.computeCorrelationMatrix(xyRatings);
+                    RealMatrix corrMatrix = pearsonsCorrelation.computeCorrelationMatrix(xyRatings);
+                    Double distance = euclideanDistanceMeasure.distance(x, y);
 
-                    System.out.println("Num of biz: " + i + " ,Correlation: " + rm.getEntry(0,1));
+                    System.out.print(Arrays.deepToString(xyRatings));
+                    System.out.println(" Num of biz: " + i + " ,Correlation: " + corrMatrix.getEntry(0, 1) + ", distance: "+ distance);
                 }
 
             }
