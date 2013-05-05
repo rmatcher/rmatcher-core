@@ -31,7 +31,7 @@ public class Matcher {
                     .getConnection("jdbc:mysql://localhost/rmatcher?user=root&password=");
             connect.setAutoCommit(false);
 
-            String user = "YzNZNgpOy9tthDnczS_ajg";
+            String user = "j8ocPEVty-EEYQk_Zeldyg";
 
             Map<String, Double> userRatedBusinesses = getListOfBusinessesFromUser(user, connect);
             Map<String, Map<String, Double>> commonReviewsByUser = getReviewsForBusinesses(userRatedBusinesses.keySet(), connect);
@@ -48,7 +48,7 @@ public class Matcher {
                 if(i > 1){
                     RealMatrix rm = cor.computeCorrelationMatrix(xyRatings);
 
-                    System.out.println(rm.toString());
+                    System.out.println("Num of biz: " + i + " ,Correlation: " + rm.getEntry(0,1));
                 }
 
             }
@@ -107,7 +107,7 @@ public class Matcher {
                     String user_id = resultSet.getString("user_id");
                     Double stars = resultSet.getDouble("stars");
 
-                    if(!reviews.containsKey("user_id")){
+                    if(!reviews.containsKey(user_id)){
                         reviews.put(user_id, new HashMap<String, Double>());
                     }
 
