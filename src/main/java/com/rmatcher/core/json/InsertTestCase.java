@@ -52,7 +52,7 @@ public class InsertTestCase {
 
     private static void insertTestCase(Connection connect, Iterator<TestCase> userTestlist) throws SQLException {
         PreparedStatement statement = connect
-                .prepareStatement("INSERT INTO rmatcher.viewTestCase values (?, ?, ?)");
+                .prepareStatement("INSERT INTO rmatcher.viewTestCase values (?, ?, ?, ?)");
 
         int count = 0;
         int currentUserCnt = 0;
@@ -72,8 +72,9 @@ public class InsertTestCase {
 
             if (currentUserCnt <= thirtyPercent){
                 statement.setString(1, user.getUser_id());
-                statement.setString(2, user.getReview_id());
-                statement.setInt(3, thirtyPercent);
+                statement.setString(2, user.getBusiness_id());
+                statement.setString(3, user.getReview_id());
+                statement.setInt(4, thirtyPercent);
                 statement.addBatch();
                 ++count;
             }
@@ -98,7 +99,7 @@ public class InsertTestCase {
             statement.execute();
             resultSet = statement.getResultSet();
             while (resultSet.next()) {
-                TestCase sb = new TestCase(resultSet.getString("user_id"), resultSet.getString("review_id"), resultSet.getInt("userTotalReview"));
+                TestCase sb = new TestCase(resultSet.getString("user_id"), resultSet.getString("business_id"), resultSet.getString("review_id"), resultSet.getInt("userTotalReview"));
                 userList.add(sb);
             }
         }  catch (Exception e) {

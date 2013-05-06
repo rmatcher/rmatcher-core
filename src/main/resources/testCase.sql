@@ -11,12 +11,13 @@ ORDER BY RAND()
 LIMIT 15;
 
 CREATE TABLE viewFullTestCase
-SELECT VS.user_id, review_id, userTotalReview
+SELECT VS.user_id, business_id, review_id, userTotalReview
 FROM viewSelection AS VS, review AS R
 WHERE VS.user_id = R.user_id
 GROUP BY review_id
 ORDER BY  VS.user_id ASC;
 
 CREATE TABLE viewTestCase(user_id VARCHAR(30) NOT NULL,
+    business_id VARCHAR(30) NOT NULL,
     review_id VARCHAR(30) NOT NULL,
     review_count INT NOT NULL);

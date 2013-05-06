@@ -10,11 +10,13 @@ package com.rmatcher.core.json;
 public class TestCase {
 
     private String user_id;
+    private String business_id;
     private String review_id;
     private int totalReviewCount;
 
-    public TestCase( String user_id, String review_id, int totalReviewCount) {
+    public TestCase( String user_id, String business_id, String review_id, int totalReviewCount) {
         this.user_id = user_id;
+        this.business_id = business_id;
         this.review_id = review_id;
         this.totalReviewCount = totalReviewCount;
     }
@@ -25,6 +27,14 @@ public class TestCase {
 
     public void setUser_id(String user_id) {
         this.user_id = user_id;
+    }
+
+    public String getBusiness_id() {
+        return business_id;
+    }
+
+    public void setBusiness_id(String business_id) {
+        this.business_id = business_id;
     }
 
     public String getReview_id() {
