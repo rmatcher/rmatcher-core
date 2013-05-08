@@ -37,7 +37,7 @@ public class Matcher {
             String user = "5mnhUiRWi-q6nX7TkicE2A";
 
             //return recommendations for a given user. Will return biz_id and rating by other user
-            Map<String, Double> recommendedBusinesses = getRecommendations(user, connect);
+            Map<String, Double[]> recommendedBusinesses = getRecommendations(user, connect);
 
             //System.out.println("////////////Recommended Businesses////////////////");
             //for(String biz : recommendedBusinesses.keySet())
@@ -50,7 +50,11 @@ public class Matcher {
             Map<String, Double> userTestRatedBusinesses = getListOfBusinessesFromUser(false, user, connect);
             for(String biz : userTestRatedBusinesses.keySet())
             {
-                System.out.println(biz + " | " + userTestRatedBusinesses.get(biz) + " | " + recommendedBusinesses.get(biz) );
+                Double[] values = recommendedBusinesses.get(biz);
+                Double stars = values != null ? values[0] : null;
+                Double confidence = values != null ? values[1] : null;
+
+                System.out.println(biz + " | " + userTestRatedBusinesses.get(biz) + " | " + stars + "  " + confidence );
             }
 
         } catch (Exception e) {
@@ -62,7 +66,7 @@ public class Matcher {
         }
     }
 
-    private static Map<String, Double> getRecommendations(String user, Connection connect) throws SQLException {
+    private static Map<String, Double[]> getRecommendations(String user, Connection connect) throws SQLException {
 
         //get biz the user rated excluding the testing reviews
         Map<String, Double> userRatedBusinesses = getListOfBusinessesFromUser(true, user, connect);
@@ -77,7 +81,7 @@ public class Matcher {
 
         //Sublist of top correlated users
         List<String> users = new ArrayList<>();
-        for(Map.Entry<String, Double[]> entry : entries.subList(0, (int)(0.15*entries.size())))
+        for(Map.Entry<String, Double[]> entry : entries.subList(0, (int)(0.3*entries.size())))
         {
             System.out.println(entry.getKey() + " " + entry.getValue()[2]);
             users.add(entry.getKey());
@@ -158,11 +162,11 @@ public class Matcher {
         for(String u : correlatedUsers.keySet()){
             Double[] values = correlatedUsers.get(u);
             values[1] = 1 - (values[1]/maxDistance);
-            values[2] = values[0] + values[1];
+            values[2] = values[0] + values[1];       //This seems better, but still need better normalisation based on users num of common ratings
+            //values[2] = values[0];
         }
         return correlatedUsers;
     }
-
 
     public static Map<String, Map<String, Double>> getReviewsForBusinesses(Set<String> bizSet, String excludedUser, Connection connect)
             throws SQLException{
@@ -241,10 +245,10 @@ public class Matcher {
     }
 
 
-    public static Map<String, Double> getListBusinessesFromUsers(List<String> users, Connection connect)
+    public static Map<String, Double[]> getListBusinessesFromUsers(List<String> users, Connection connect)
             throws SQLException{
 
-        Map<String, Double> userRatedBusinesses = new HashMap<>();
+        Map<String, Double[]> userRatedBusinesses = new HashMap<>();
         ResultSet resultSet = null;
 
         StringBuilder builder = new StringBuilder();
@@ -253,7 +257,7 @@ public class Matcher {
             builder.append("?,");
         }
 
-        String stmt = "SELECT business_id, avg(stars) AS stars FROM rmatcher.review WHERE user_id IN ("
+        String stmt = "SELECT business_id, avg(stars) AS stars, count(stars) AS confidence FROM rmatcher.review WHERE user_id IN ("
                 + builder.deleteCharAt( builder.length() -1 ).toString() + ") GROUP BY business_id";
 
         PreparedStatement statement = connect
@@ -268,7 +272,8 @@ public class Matcher {
             statement.execute();
             resultSet = statement.getResultSet();
             while (resultSet.next()) {
-                userRatedBusinesses.put(resultSet.getString("business_id"), resultSet.getDouble("stars"));
+                Double[] values =  {resultSet.getDouble("stars"), resultSet.getDouble("confidence")};
+                userRatedBusinesses.put(resultSet.getString("business_id"), values);
             }
         }  catch (Exception e) {
             throw e;
