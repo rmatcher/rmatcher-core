@@ -11,7 +11,6 @@ import java.util.*;
  * User: ameen
  * Date: 5/18/13
  * Time: 5:55 PM
- * To change this template use File | Settings | File Templates.
  */
 public final class Utils {
     private  Utils(){}
@@ -206,4 +205,32 @@ public final class Utils {
     }
 
 
+    public static List<String> getTestUsers(Connection connect)
+            throws SQLException{
+
+        List<String> users = new ArrayList<>();
+        ResultSet resultSet = null;
+        PreparedStatement statement = connect
+                .prepareStatement("SELECT user_id FROM rmatcher.viewSelection ORDER BY userTotalReview");
+
+        try{
+            statement.execute();
+            resultSet = statement.getResultSet();
+            while (resultSet.next()) {
+                String user_id = resultSet.getString("user_id");
+
+                users.add(user_id);
+            }
+        }  catch (Exception e) {
+            throw e;
+        }
+        finally {
+            if (resultSet != null) {
+                resultSet.close();
+            }
+            statement.close();
+        }
+
+        return users;
+    }
 }

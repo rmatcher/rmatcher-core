@@ -16,16 +16,16 @@ import java.util.*;
  * User: ameen
  * Date: 5/18/13
  * Time: 5:59 PM
- * To change this template use File | Settings | File Templates.
  */
 public final class MatcherUtils {
+    public static int CORRELATION = 0;
+    public static int DISTANCE = 1;
+    public static int TOTAL = 2;
+
     private MatcherUtils(){}
 
+    public static Map<String, Double[]> getRecommendationsBasic(Map<String, Double> userRatedBusinesses, String user, Connection connect) throws SQLException {
 
-    public static Map<String, Double[]> getRecommendations(String user, Connection connect) throws SQLException {
-
-        //get biz the user rated excluding the testing reviews
-        Map<String, Double> userRatedBusinesses = Utils.getListOfBusinessesFromUser(true, user, connect);
         //get users ratings for all the training biz of the user we are giving recommendation to
         Map<String, Map<String, Double>> commonReviewsByUser = Utils.getReviewsForBusinesses(userRatedBusinesses.keySet(), user, connect);
 
@@ -33,26 +33,47 @@ public final class MatcherUtils {
         Map<String, Double[]> correlatedUsers = computeCorrelation(userRatedBusinesses, commonReviewsByUser);
 
         //List of sorted entries in DESC order
-        List<Map.Entry<String, Double[]>> entries = convertToSortedEntries(correlatedUsers);
+        List<Map.Entry<String, Double[]>> entries = convertToSortedEntries(correlatedUsers, CORRELATION);
 
         //Sublist of top correlated users
         List<String> users = new ArrayList<>();
         for(Map.Entry<String, Double[]> entry : entries.subList(0, (int)(0.3*entries.size())))
         {
-            System.out.println(entry.getKey() + " " + entry.getValue()[2]);
+            //System.out.println(entry.getKey() + " " + entry.getValue()[CORRELATION]);
             users.add(entry.getKey());
         }
         // return businesses for the top correlated users
         return Utils.getListBusinessesFromUsers(users, connect);
     }
 
+    public static Map<String, Double[]> getRecommendationsAdvance(Map<String, Double> userRatedBusinesses, String user, Connection connect) throws SQLException {
 
-    private static List<Map.Entry<String, Double[]>> convertToSortedEntries(Map<String, Double[]> correlatedUsers) {
+        //get users ratings for all the training biz of the user we are giving recommendation to
+        Map<String, Map<String, Double>> commonReviewsByUser = Utils.getReviewsForBusinesses(userRatedBusinesses.keySet(), user, connect);
+
+        //returns user: [pearsonCorrScore, Distance, pearsonCorrScore+NormalisedDistance]
+        Map<String, Double[]> correlatedUsers = computeCorrelation(userRatedBusinesses, commonReviewsByUser);
+
+        //List of sorted entries in DESC order
+        List<Map.Entry<String, Double[]>> entries = convertToSortedEntries(correlatedUsers, TOTAL);
+
+        //Sublist of top correlated users
+        List<String> users = new ArrayList<>();
+        for(Map.Entry<String, Double[]> entry : entries.subList(0, (int)(0.3*entries.size())))
+        {
+            //System.out.println(entry.getKey() + " " + entry.getValue()[TOTAL]);
+            users.add(entry.getKey());
+        }
+        // return businesses for the top correlated users
+        return Utils.getListBusinessesFromUsers(users, connect);
+    }
+
+    private static List<Map.Entry<String, Double[]>> convertToSortedEntries(Map<String, Double[]> correlatedUsers, final int by) {
         List<Map.Entry<String, Double[]>> entries = new ArrayList<Map.Entry<String, Double[]>>(correlatedUsers.entrySet());
 
         Collections.sort(entries, new Comparator<Map.Entry<String, Double[]>>() {
             public int compare(Map.Entry<String, Double[]> a, Map.Entry<String, Double[]> b) {
-                return b.getValue()[2].compareTo(a.getValue()[2]);
+                return b.getValue()[by].compareTo(a.getValue()[by]);
             }
         });
         return entries;
@@ -117,9 +138,8 @@ public final class MatcherUtils {
         //Normalize the Distance and add it with the correlation value in index=2
         for(String u : correlatedUsers.keySet()){
             Double[] values = correlatedUsers.get(u);
-            values[1] = 1 - (values[1]/maxDistance);
-            values[2] = values[0] + values[1];       //This seems better, but still need better normalisation based on users num of common ratings
-            //values[2] = values[0];
+            values[DISTANCE] = 1 - (values[DISTANCE]/maxDistance);
+            values[TOTAL] = values[CORRELATION] + values[DISTANCE];       //This seems better, but still need better normalisation based on users num of common ratings
         }
         return correlatedUsers;
     }
