@@ -162,7 +162,7 @@ public final class Utils {
     }
 
 
-    public static Map<String, Double[]> getListBusinessesFromUsers(List<String> users, Connection connect)
+    public static Map<String, Double[]> getAverageStarsBusinessesFromUsers(List<String> users, Connection connect)
             throws SQLException{
 
         Map<String, Double[]> userRatedBusinesses = new HashMap<>();
@@ -189,7 +189,7 @@ public final class Utils {
             statement.execute();
             resultSet = statement.getResultSet();
             while (resultSet.next()) {
-                Double[] values =  {resultSet.getDouble("stars"), resultSet.getDouble("confidence")};
+                Double[] values =  {(double)Math.round(resultSet.getDouble("stars")), resultSet.getDouble("confidence")};
                 userRatedBusinesses.put(resultSet.getString("business_id"), values);
             }
         }  catch (Exception e) {
@@ -204,6 +204,48 @@ public final class Utils {
         return userRatedBusinesses;
     }
 
+
+    public static Map<String, Double[]> getBusinessesFromUsers(List<String> users, Connection connect)
+            throws SQLException{
+
+        Map<String, Double[]> userRatedBusinesses = new HashMap<>();
+        ResultSet resultSet = null;
+
+        StringBuilder builder = new StringBuilder();
+
+        for( int i = 0 ; i < users.size(); i++ ) {
+            builder.append("?,");
+        }
+
+        String stmt = "SELECT business_id, sum((stars+sentiment_score)*vote_count)/sum(vote_count) AS adjusted_stars, count(stars) AS confidence FROM rmatcher.review WHERE user_id IN ("
+                + builder.deleteCharAt( builder.length() -1 ).toString() + ") GROUP BY business_id";
+
+        PreparedStatement statement = connect
+                .prepareStatement(stmt);
+
+        try{
+            int index = 1;
+            for( String user : users ) {
+                statement.setString(index++, user);
+            }
+
+            statement.execute();
+            resultSet = statement.getResultSet();
+            while (resultSet.next()) {
+                Double[] values =  {(double)Math.round(resultSet.getDouble("adjusted_stars")), resultSet.getDouble("confidence")};
+                userRatedBusinesses.put(resultSet.getString("business_id"), values);
+            }
+        }  catch (Exception e) {
+            throw e;
+        }
+        finally {
+            if (resultSet != null) {
+                resultSet.close();
+            }
+            statement.close();
+        }
+        return userRatedBusinesses;
+    }
 
     public static List<String> getTestUsers(Connection connect)
             throws SQLException{

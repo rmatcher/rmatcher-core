@@ -1,6 +1,7 @@
 package com.rmatcher.core.json;
 
 import com.google.common.base.Joiner;
+import com.rmatcher.core.sentiment.SentimentScoring;
 
 import java.io.FileInputStream;
 import java.sql.*;
@@ -53,9 +54,9 @@ public class Load {
                     .getConnection("jdbc:mysql://localhost/rmatcher?user=root&password=");
             connect.setAutoCommit(false);
 
-            loadBusiness(connect, businessIterator);
-            loadUser(connect, userIterator);
-            loadCheckin(connect, checkinIterator);
+            //loadBusiness(connect, businessIterator);
+            //loadUser(connect, userIterator);
+            //loadCheckin(connect, checkinIterator);
             loadReview(connect, reviewIterator);
 
         } catch (Exception e) {
@@ -128,8 +129,10 @@ public class Load {
     }
 
     private static void loadReview(Connection connect, Iterator<Yelp_Review> reviewIterator) throws SQLException {
+
+        SentimentScoring ss = new SentimentScoring();
         PreparedStatement statement = connect
-                .prepareStatement("INSERT INTO rmatcher.review values (?, ?, ?, ?, ?, ?, ?)");
+                .prepareStatement("INSERT INTO rmatcher.review values (?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
         int count = 0;
         while(reviewIterator.hasNext()){
@@ -142,6 +145,8 @@ public class Load {
             statement.setString(5, review.get_text());
             statement.setString(6, review.get_date());
             statement.setString(7, review.get_votes().toString());
+            statement.setInt(8, review.get_votes().get_cool() + review.get_votes().get_funny() + review.get_votes().get_useful());
+            statement.setDouble(9, ss.scoreSentence(review.get_text()));
             statement.addBatch();
             ++count;
             if (count % 1000 == 0) {

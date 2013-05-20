@@ -15,11 +15,11 @@ import java.util.Vector;
 public class SWN3 {
     //private String pathToSWN = "target\\classes\\SentiWordNet_3.0.0_20130122.txt";
     private String pathToSWN = "target/classes/SentiWordNet_3.0.0_20130122.txt";
-    private HashMap<String, String> _dict;
+    private HashMap<String, Double> _dict;
 
     public SWN3() {
 
-        _dict = new HashMap<String, String>();
+        _dict = new HashMap<String, Double>();
         HashMap<String, Vector<Double>> _temp = new HashMap<String, Vector<Double>>();
         try {
             BufferedReader csv = new BufferedReader(new FileReader(pathToSWN));
@@ -59,6 +59,7 @@ public class SWN3 {
                 for (int i = 1; i <= v.size(); i++)
                     sum += (double) 1 / (double) i;
                 score /= sum;
+                /*
                 String sent = "";
                 if (score >= 0.75)
                     sent = "strong_positive";
@@ -72,14 +73,15 @@ public class SWN3 {
                     sent = "negative";
                 else if (score <= -0.75)
                     sent = "strong_negative";
-                _dict.put(word, sent);
+                */
+                _dict.put(word, score);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public String extract(String word, String pos) {
+    public Double extract(String word, String pos) {
         return _dict.get(word + "#" + pos);
     }
 }

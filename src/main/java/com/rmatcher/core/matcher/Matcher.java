@@ -16,6 +16,9 @@ import java.sql.SQLException;
 import java.util.*;
 
 public class Matcher {
+    private static Double averageRecall = 0.0;
+    private static Double averagePrecision = 0.0;
+    private static Double averageRMSD = 0.0;
 
     public static void main(String [] args) throws Exception {
 
@@ -33,16 +36,24 @@ public class Matcher {
                 //get biz the user rated excluding the testing reviews
                 Map<String, Double> userTrainingRatedBusinesses = Utils.getListOfBusinessesFromUser(true, user, connect);
                 Map<String, Double> userTestRatedBusinesses = Utils.getListOfBusinessesFromUser(false, user, connect);
-                Double userAverage = average(userTrainingRatedBusinesses.values());
+                Double userAverage = (double)Math.round(average(userTrainingRatedBusinesses.values()));
 
                 //return recommendations for a given user. Will return biz_id and rating by other user
-                Map<String, Double[]> basicRecommendedBusinesses = MatcherUtils.getRecommendationsBasic(userTrainingRatedBusinesses, user, connect);
-                stats(connect, userTestRatedBusinesses, userAverage, basicRecommendedBusinesses);
+                //Map<String, Double[]> basicRecommendedBusinesses = MatcherUtils.getRecommendationsBasic(userTrainingRatedBusinesses, user, connect);
+                //stats(connect, userTestRatedBusinesses, userAverage, basicRecommendedBusinesses);
 
                 //return recommendations for a given user. Will return biz_id and rating by other user
                 Map<String, Double[]> advancedRecommendedBusinesses = MatcherUtils.getRecommendationsAdvance(userTrainingRatedBusinesses, user, connect);
                 stats(connect, userTestRatedBusinesses, userAverage, advancedRecommendedBusinesses);
             }
+            averageRecall = averageRecall/testUsers.size();
+            averagePrecision = averagePrecision/testUsers.size();
+            averageRMSD = averageRMSD/testUsers.size();
+
+            System.out.println(averageRecall + " " + averagePrecision + " " + averageRMSD);
+
+            //0.678122806152867 0.005673782005784287 1.12198464560764s
+            //0.7645388051809703 0.005459404771607568 1.1641594488173612
 
             // Get Businesses' by Categories
             //Map<String, Collection<String>> categoryList = Utils.groupBusinessesByCategories(connect);
@@ -60,36 +71,46 @@ public class Matcher {
     }
 
     private static void stats(Connection connect, Map<String, Double> userTestRatedBusinesses, Double userAverage, Map<String, Double[]> recommendedBusinesses) throws SQLException {
-        System.out.println("Business\t   | uR  |  stars  | confidence ");
-        Double relevantRetrieved = 0.0;
+        //System.out.println("Business\t   | uR  |  stars  | confidence ");
+        int relevantRetrieved = 0;
+        int relevant = 0;
         Double sumSquaredError = 0.0;
 
         for(String biz : userTestRatedBusinesses.keySet())
         {
             Double userRating = userTestRatedBusinesses.get(biz);
             Double[] values = recommendedBusinesses.get(biz);
-            Double avgStars = values != null ? values[0] : userAverage;
+            Double avgStars = values != null && values[1] > 1 ? values[0] : userAverage;
             Double confidence = values != null ? values[1] : 0;
 
-            if(confidence > 1){
+            if(userRating > 3.9 && confidence > 0){
                 relevantRetrieved++;
             }
 
+            if(userRating > 3.9){
+                relevant++;
+            }
+
             Double error = userRating - avgStars;
-            sumSquaredError = error*error;
-            System.out.println(Utils.getBusinessName(biz, connect) + " | " + userRating + " | " + avgStars + " | " + confidence );
+            sumSquaredError += error*error;
+            //System.out.println(Utils.getBusinessName(biz, connect) + " | " + userRating + " | " + avgStars + " | " + confidence );
         }
 
         int retrieved = 0;
         for(Double[] value : recommendedBusinesses.values()){
-            if(value[0] > 3.9 && value[1] > 1){
+            if(value[0] > 3.9 && value[1] > 0){
                 retrieved++;
             }
         }
 
-        Double recall = (relevantRetrieved/userTestRatedBusinesses.keySet().size());
-        Double precision = (relevantRetrieved/retrieved);
+        Double recall = (relevant != 0) ? (double)relevantRetrieved/relevant : 1;
+        Double precision = (retrieved != 0) ? ((double)relevantRetrieved/retrieved) : 1;
         Double rootMeanSquaredDeviation = Math.sqrt(sumSquaredError / userTestRatedBusinesses.keySet().size());
+
+        averageRecall += recall;
+        averagePrecision += precision;
+        averageRMSD += rootMeanSquaredDeviation;
+
         System.out.println("TotalTestedReviews: " + userTestRatedBusinesses.keySet().size() +  " Recall: " + recall + " Precision: " + precision + " RMSD: " + rootMeanSquaredDeviation);
     }
 

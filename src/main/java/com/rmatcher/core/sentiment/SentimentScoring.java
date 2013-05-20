@@ -42,27 +42,33 @@ public class SentimentScoring {
         String sent2 = "Always reliably good.  Great beer selection as well as fabulous \"bitch fizz\" (ciders, etc.) and cocktails.  Their pizza is outstanding AND they have a healthy menu.  I generally steer clear of chains but this is an exception.";
 
         SentimentScoring ss = new SentimentScoring();
-        double result = ss.scoreSentence(sent1);
-        System.out.println(result);
 
-        ss.scoreSentence(sent2);
+        System.out.println(ss.scoreSentence(sent1));
+        System.out.println(ss.scoreSentence(sent2));
 
 
     }
 
     public double scoreSentence(String sent){
 
+        Double sum = 0.0;
         String tagged = tagger.tagString(sent);
         Iterator<String> wordsIter = Splitter.on(' ').omitEmptyStrings().trimResults().split(tagged).iterator();
 
         while(wordsIter.hasNext()){
             String[] word = wordsIter.next().split("_");
-            if(word[1].equals("JJ")){
-
-                System.out.println(word[0] + ": " + swn3.extract(word[0],"a"));
+            Double score = 0.0;
+            if(word[1].equals("JJ")){  //adj
+                score = swn3.extract(word[0].toLowerCase(),"a");
             }
-
+            if(word[1].equals("RBR") || word[1].equals("RB")){  //RB Adverb; RBR Adverb
+                score = swn3.extract(word[0].toLowerCase(),"r");
+            }
+            //System.out.println(word[0] + ": " + score +" "+ word[1]);
+            if(score != null){
+                sum += score;
+            }
         }
-        return 0.0;
+        return sum;
     }
 }

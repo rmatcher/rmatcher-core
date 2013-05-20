@@ -20,7 +20,8 @@ import java.util.*;
 public final class MatcherUtils {
     public static int CORRELATION = 0;
     public static int DISTANCE = 1;
-    public static int TOTAL = 2;
+    public static int NUM_COMMON = 2;
+    public static int TOTAL = 3;
 
     private MatcherUtils(){}
 
@@ -43,7 +44,7 @@ public final class MatcherUtils {
             users.add(entry.getKey());
         }
         // return businesses for the top correlated users
-        return Utils.getListBusinessesFromUsers(users, connect);
+        return Utils.getAverageStarsBusinessesFromUsers(users, connect);
     }
 
     public static Map<String, Double[]> getRecommendationsAdvance(Map<String, Double> userRatedBusinesses, String user, Connection connect) throws SQLException {
@@ -65,7 +66,7 @@ public final class MatcherUtils {
             users.add(entry.getKey());
         }
         // return businesses for the top correlated users
-        return Utils.getListBusinessesFromUsers(users, connect);
+        return Utils.getBusinessesFromUsers(users, connect);
     }
 
     private static List<Map.Entry<String, Double[]>> convertToSortedEntries(Map<String, Double[]> correlatedUsers, final int by) {
@@ -85,6 +86,7 @@ public final class MatcherUtils {
         DistanceMeasure euclideanDistanceMeasure = new EuclideanDistanceMeasure();
         Map<String, Double[]> correlatedUsers = new LinkedHashMap<>();
         Double maxDistance = 0.0;
+        int maxCommon = 0;
 
         //For each user
         for (String user_id : commonReviewsByUser.keySet()) {
@@ -122,12 +124,17 @@ public final class MatcherUtils {
             }
 
             //add the user computed values to a Map
-            Double[] values = {corrMatrix.getEntry(0, 1), distance, 0.0};
+            Double[] values = {corrMatrix.getEntry(0, 1), 1.0*reviews.keySet().size(), distance, 0.0};
             correlatedUsers.put(user_id, values);
 
             //Keep track of MaxDistance for Normalisation later
             if(distance > maxDistance){
                 maxDistance = distance;
+            }
+
+            //Keep track of MaxCommon for Normalisation later
+            if(reviews.keySet().size() > maxCommon){
+                maxCommon = reviews.keySet().size();
             }
 
             //System.out.print(Arrays.deepToString(xyRatings));
@@ -138,10 +145,10 @@ public final class MatcherUtils {
         //Normalize the Distance and add it with the correlation value in index=2
         for(String u : correlatedUsers.keySet()){
             Double[] values = correlatedUsers.get(u);
+            values[NUM_COMMON] = values[NUM_COMMON]/maxCommon;
             values[DISTANCE] = 1 - (values[DISTANCE]/maxDistance);
-            values[TOTAL] = values[CORRELATION] + values[DISTANCE];       //This seems better, but still need better normalisation based on users num of common ratings
+            values[TOTAL] = (values[CORRELATION] + 0.3*values[DISTANCE])*values[NUM_COMMON];
         }
         return correlatedUsers;
     }
-
 }
