@@ -38,9 +38,11 @@ public final class MatcherUtils {
 
         //Sublist of top correlated users
         List<String> users = new ArrayList<>();
-        for(Map.Entry<String, Double[]> entry : entries.subList(0, (int)(0.3*entries.size())))
+        for(Map.Entry<String, Double[]> entry : entries)
         {
             //System.out.println(entry.getKey() + " " + entry.getValue()[CORRELATION]);
+            if(entry.getValue()[CORRELATION] < 0.95)
+                break;
             users.add(entry.getKey());
         }
         // return businesses for the top correlated users
@@ -60,9 +62,11 @@ public final class MatcherUtils {
 
         //Sublist of top correlated users
         List<String> users = new ArrayList<>();
-        for(Map.Entry<String, Double[]> entry : entries.subList(0, (int)(0.3*entries.size())))
+        for(Map.Entry<String, Double[]> entry : entries)
         {
             //System.out.println(entry.getKey() + " " + entry.getValue()[TOTAL]);
+            if(entry.getValue()[TOTAL] < 2.1)
+                break;
             users.add(entry.getKey());
         }
         // return businesses for the top correlated users
@@ -117,14 +121,18 @@ public final class MatcherUtils {
             //get scores
             RealMatrix corrMatrix = pearsonsCorrelation.computeCorrelationMatrix(xyRatings);
             Double distance = euclideanDistanceMeasure.distance(x, y);
+            Double correlation = corrMatrix.getEntry(0, 1);
 
-            //if correlation is NaN, it means that one user ratings of common biz did not change => sd = 0 => ignore such cases
-            if(Double.isNaN(corrMatrix.getEntry(0, 1))){
-                continue;
+            //if correlation is NaN, it means that one user ratings of common biz did not change => sd = 0 => ignore if not equal ratings.
+            if(Double.isNaN(correlation)){
+                if(distance.intValue() != 0)
+                    continue;
+                else
+                    correlation = 1.0;
             }
 
             //add the user computed values to a Map
-            Double[] values = {corrMatrix.getEntry(0, 1), 1.0*reviews.keySet().size(), distance, 0.0};
+            Double[] values = {correlation, distance, 1.0*reviews.keySet().size(), 0.0};
             correlatedUsers.put(user_id, values);
 
             //Keep track of MaxDistance for Normalisation later
@@ -147,7 +155,7 @@ public final class MatcherUtils {
             Double[] values = correlatedUsers.get(u);
             values[NUM_COMMON] = values[NUM_COMMON]/maxCommon;
             values[DISTANCE] = 1 - (values[DISTANCE]/maxDistance);
-            values[TOTAL] = (values[CORRELATION] + 0.3*values[DISTANCE])*values[NUM_COMMON];
+            values[TOTAL] = (values[CORRELATION] + values[DISTANCE] + values[NUM_COMMON]);
         }
         return correlatedUsers;
     }

@@ -36,15 +36,15 @@ public class Matcher {
                 //get biz the user rated excluding the testing reviews
                 Map<String, Double> userTrainingRatedBusinesses = Utils.getListOfBusinessesFromUser(true, user, connect);
                 Map<String, Double> userTestRatedBusinesses = Utils.getListOfBusinessesFromUser(false, user, connect);
-                Double userAverage = (double)Math.round(average(userTrainingRatedBusinesses.values()));
+                Double userAverage = (double)Math.ceil(average(userTrainingRatedBusinesses.values()));
 
                 //return recommendations for a given user. Will return biz_id and rating by other user
-                //Map<String, Double[]> basicRecommendedBusinesses = MatcherUtils.getRecommendationsBasic(userTrainingRatedBusinesses, user, connect);
-                //stats(connect, userTestRatedBusinesses, userAverage, basicRecommendedBusinesses);
+                Map<String, Double[]> basicRecommendedBusinesses = MatcherUtils.getRecommendationsBasic(userTrainingRatedBusinesses, user, connect);
+                stats(connect, userTestRatedBusinesses, userAverage, basicRecommendedBusinesses);
 
                 //return recommendations for a given user. Will return biz_id and rating by other user
-                Map<String, Double[]> advancedRecommendedBusinesses = MatcherUtils.getRecommendationsAdvance(userTrainingRatedBusinesses, user, connect);
-                stats(connect, userTestRatedBusinesses, userAverage, advancedRecommendedBusinesses);
+                //Map<String, Double[]> advancedRecommendedBusinesses = MatcherUtils.getRecommendationsAdvance(userTrainingRatedBusinesses, user, connect);
+                //stats(connect, userTestRatedBusinesses, userAverage, advancedRecommendedBusinesses);
             }
             averageRecall = averageRecall/testUsers.size();
             averagePrecision = averagePrecision/testUsers.size();
@@ -52,8 +52,9 @@ public class Matcher {
 
             System.out.println(averageRecall + " " + averagePrecision + " " + averageRMSD);
 
-            //0.678122806152867 0.005673782005784287 1.12198464560764s
-            //0.7645388051809703 0.005459404771607568 1.1641594488173612
+            //0.7757942575085289 0.005754022345089785 1.017802138884574
+            //0.46454768108817845 0.008880095072428757 0.9825187006647647
+            //0.7757942575085289 0.005754022345089785 1.017802138884574
 
             // Get Businesses' by Categories
             //Map<String, Collection<String>> categoryList = Utils.groupBusinessesByCategories(connect);

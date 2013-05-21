@@ -217,7 +217,7 @@ public final class Utils {
             builder.append("?,");
         }
 
-        String stmt = "SELECT business_id, sum((stars+sentiment_score)*vote_count)/sum(vote_count) AS adjusted_stars, count(stars) AS confidence FROM rmatcher.review WHERE user_id IN ("
+        String stmt = "SELECT business_id, sum((stars)*vote_count)/sum(vote_count) AS adjusted_stars, count(stars) AS confidence FROM rmatcher.review WHERE user_id IN ("
                 + builder.deleteCharAt( builder.length() -1 ).toString() + ") GROUP BY business_id";
 
         PreparedStatement statement = connect
