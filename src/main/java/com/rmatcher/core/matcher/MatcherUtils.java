@@ -3,6 +3,7 @@ package com.rmatcher.core.matcher;
 import com.rmatcher.core.database.Utils;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
+import org.apache.mahout.common.distance.CosineDistanceMeasure;
 import org.apache.mahout.common.distance.DistanceMeasure;
 import org.apache.mahout.common.distance.EuclideanDistanceMeasure;
 import org.apache.mahout.math.SequentialAccessSparseVector;
@@ -49,7 +50,7 @@ public final class MatcherUtils {
         return Utils.getAverageStarsBusinessesFromUsers(users, connect);
     }
 
-    public static Map<String, Double[]> getRecommendationsAdvance(Map<String, Double> userRatedBusinesses, String user, Connection connect) throws SQLException {
+    public static Map<String, Double[]> getRecommendationsAdvance(Map<String, Double> userRatedBusinesses, String user, Set<String> categoryFilteredBiz, Connection connect) throws SQLException {
 
         //get users ratings for all the training biz of the user we are giving recommendation to
         Map<String, Map<String, Double>> commonReviewsByUser = Utils.getReviewsForBusinesses(userRatedBusinesses.keySet(), user, connect);
@@ -65,12 +66,12 @@ public final class MatcherUtils {
         for(Map.Entry<String, Double[]> entry : entries)
         {
             //System.out.println(entry.getKey() + " " + entry.getValue()[TOTAL]);
-            if(entry.getValue()[TOTAL] < 2.1)
+            if(entry.getValue()[TOTAL] < 2.0)
                 break;
             users.add(entry.getKey());
         }
         // return businesses for the top correlated users
-        return Utils.getBusinessesFromUsers(users, connect);
+        return Utils.getBusinessesFromUsers(users, categoryFilteredBiz, connect);
     }
 
     private static List<Map.Entry<String, Double[]>> convertToSortedEntries(Map<String, Double[]> correlatedUsers, final int by) {
@@ -87,6 +88,7 @@ public final class MatcherUtils {
 
     private static Map<String, Double[]> computeCorrelation(Map<String, Double> userRatedBusinesses, Map<String, Map<String, Double>> commonReviewsByUser) {
         PearsonsCorrelation pearsonsCorrelation = new PearsonsCorrelation();
+        CosineDistanceMeasure cosineDistanceMeasure = new CosineDistanceMeasure();
         DistanceMeasure euclideanDistanceMeasure = new EuclideanDistanceMeasure();
         Map<String, Double[]> correlatedUsers = new LinkedHashMap<>();
         Double maxDistance = 0.0;
@@ -120,7 +122,9 @@ public final class MatcherUtils {
 
             //get scores
             RealMatrix corrMatrix = pearsonsCorrelation.computeCorrelationMatrix(xyRatings);
-            Double distance = euclideanDistanceMeasure.distance(x, y);
+            Double distance = cosineDistanceMeasure.distance(x, y);
+
+            //Double distance = euclideanDistanceMeasure.distance(x, y);
             Double correlation = corrMatrix.getEntry(0, 1);
 
             //if correlation is NaN, it means that one user ratings of common biz did not change => sd = 0 => ignore if not equal ratings.

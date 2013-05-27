@@ -30,6 +30,11 @@ public class Matcher {
                     .getConnection("jdbc:mysql://localhost/rmatcher?user=root&password=");
             connect.setAutoCommit(false);
 
+            // Get Businesses' by Categories
+            Map<String, Collection<String>> categoryBizMap = new HashMap<>();
+            Map<String, Collection<String>> bizCategoryMap = new HashMap<>();
+            Utils.groupBusinessesByCategories(connect, categoryBizMap, bizCategoryMap);
+
             List<String> testUsers = Utils.getTestUsers(connect);
 
             for(String user : testUsers){
@@ -39,12 +44,21 @@ public class Matcher {
                 Double userAverage = (double)Math.ceil(average(userTrainingRatedBusinesses.values()));
 
                 //return recommendations for a given user. Will return biz_id and rating by other user
-                Map<String, Double[]> basicRecommendedBusinesses = MatcherUtils.getRecommendationsBasic(userTrainingRatedBusinesses, user, connect);
-                stats(connect, userTestRatedBusinesses, userAverage, basicRecommendedBusinesses);
+                //Map<String, Double[]> basicRecommendedBusinesses = MatcherUtils.getRecommendationsBasic(userTrainingRatedBusinesses, user, connect);
+                //stats(connect, userTestRatedBusinesses, userAverage, basicRecommendedBusinesses);
 
                 //return recommendations for a given user. Will return biz_id and rating by other user
-                //Map<String, Double[]> advancedRecommendedBusinesses = MatcherUtils.getRecommendationsAdvance(userTrainingRatedBusinesses, user, connect);
-                //stats(connect, userTestRatedBusinesses, userAverage, advancedRecommendedBusinesses);
+                Set<String> userVisitedCategories = new HashSet<>();
+                for(String biz : userTrainingRatedBusinesses.keySet()){
+                    userVisitedCategories.addAll(bizCategoryMap.get(biz));
+                }
+                Set<String> categoryFilteredBiz = new HashSet<>();
+                for(String category : userVisitedCategories){
+                    categoryFilteredBiz.addAll(categoryBizMap.get(category));
+                }
+
+                Map<String, Double[]> advancedRecommendedBusinesses = MatcherUtils.getRecommendationsAdvance(userTrainingRatedBusinesses, user, categoryFilteredBiz, connect);
+                stats(connect, userTestRatedBusinesses, userAverage, advancedRecommendedBusinesses);
             }
             averageRecall = averageRecall/testUsers.size();
             averagePrecision = averagePrecision/testUsers.size();
@@ -52,14 +66,11 @@ public class Matcher {
 
             System.out.println(averageRecall + " " + averagePrecision + " " + averageRMSD);
 
-            //0.7757942575085289 0.005754022345089785 1.017802138884574
-            //0.46454768108817845 0.008880095072428757 0.9825187006647647
-            //0.7757942575085289 0.005754022345089785 1.017802138884574
+            //0.6508191755376845 0.004319272658871976 1.1829490508155156
+            //0.8361187391558982 0.0031479623235842412 1.1290800901769424
 
-            // Get Businesses' by Categories
-            //Map<String, Collection<String>> categoryList = Utils.groupBusinessesByCategories(connect);
-            //System.out.println("************************* GROUP business by Categories *************************");
-            //printMap(categoryList);
+            //0.9713037350246653 0.0033451499955933894 1.0778074942882392
+            //0.9116252782531852 0.003911130113044805 1.0484008163799625
 
 
         } catch (Exception e) {

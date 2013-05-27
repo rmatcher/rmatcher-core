@@ -45,9 +45,9 @@ public final class Utils {
         return biz;
     }
 
-    public static Map<String, Collection<String>> groupBusinessesByCategories(Connection connect) throws SQLException{
+    public static void groupBusinessesByCategories(Connection connect, Map<String, Collection<String>> categoryBizMap,
+                                                                              Map<String, Collection<String>> bizCategoryMap) throws SQLException{
 
-        Map<String, Collection<String>> categoryList = new HashMap<String, Collection<String>>();
         ResultSet resultSet = null;
         PreparedStatement statement = connect
                 .prepareStatement("SELECT business_id, categories FROM rmatcher.business");
@@ -58,17 +58,18 @@ public final class Utils {
             while (resultSet.next()) {
 
                 String[] categorylist = resultSet.getString("categories").split("\\s*,\\s*");
+                bizCategoryMap.put(resultSet.getString("business_id"), Arrays.asList(categorylist));
 
                 for (String k : categorylist)
                 {
-                    if (categoryList.containsKey(k)){
-                        categoryList.get(k).add(resultSet.getString("business_id"));
+                    if (categoryBizMap.containsKey(k)){
+                        categoryBizMap.get(k).add(resultSet.getString("business_id"));
                     }
                     else
                     {
                         List<String> bizList = new ArrayList<String>();
                         bizList.add(resultSet.getString("business_id"));
-                        categoryList.put(k,bizList);
+                        categoryBizMap.put(k,bizList);
                     }
                 }
 
@@ -82,7 +83,6 @@ public final class Utils {
             }
             statement.close();
         }
-        return categoryList;
     }
 
     public static Map<String, Map<String, Double>> getReviewsForBusinesses(Set<String> bizSet, String excludedUser, Connection connect)
@@ -205,7 +205,7 @@ public final class Utils {
     }
 
 
-    public static Map<String, Double[]> getBusinessesFromUsers(List<String> users, Connection connect)
+    public static Map<String, Double[]> getBusinessesFromUsers(List<String> users, Set<String> categoryFilteredBiz, Connection connect)
             throws SQLException{
 
         Map<String, Double[]> userRatedBusinesses = new HashMap<>();
@@ -233,7 +233,9 @@ public final class Utils {
             resultSet = statement.getResultSet();
             while (resultSet.next()) {
                 Double[] values =  {(double)Math.round(resultSet.getDouble("adjusted_stars")), resultSet.getDouble("confidence")};
-                userRatedBusinesses.put(resultSet.getString("business_id"), values);
+                if(categoryFilteredBiz.contains(resultSet.getString("business_id"))){
+                    userRatedBusinesses.put(resultSet.getString("business_id"), values);
+                }
             }
         }  catch (Exception e) {
             throw e;
