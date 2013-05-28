@@ -44,8 +44,8 @@ public class Matcher {
                 Double userAverage = (double)Math.ceil(average(userTrainingRatedBusinesses.values()));
 
                 //return recommendations for a given user. Will return biz_id and rating by other user
-                //Map<String, Double[]> basicRecommendedBusinesses = MatcherUtils.getRecommendationsBasic(userTrainingRatedBusinesses, user, connect);
-                //stats(connect, userTestRatedBusinesses, userAverage, basicRecommendedBusinesses);
+                Map<String, Double[]> basicRecommendedBusinesses = MatcherUtils.getRecommendationsBasic(userTrainingRatedBusinesses, user, connect);
+                stats(connect, userTestRatedBusinesses, userAverage, basicRecommendedBusinesses);
 
                 //return recommendations for a given user. Will return biz_id and rating by other user
                 Set<String> userVisitedCategories = new HashSet<>();
@@ -57,8 +57,8 @@ public class Matcher {
                     categoryFilteredBiz.addAll(categoryBizMap.get(category));
                 }
 
-                Map<String, Double[]> advancedRecommendedBusinesses = MatcherUtils.getRecommendationsAdvance(userTrainingRatedBusinesses, user, categoryFilteredBiz, connect);
-                stats(connect, userTestRatedBusinesses, userAverage, advancedRecommendedBusinesses);
+                //Map<String, Double[]> advancedRecommendedBusinesses = MatcherUtils.getRecommendationsAdvance(userTrainingRatedBusinesses, user, categoryFilteredBiz, connect);
+                //stats(connect, userTestRatedBusinesses, userAverage, advancedRecommendedBusinesses);
             }
             averageRecall = averageRecall/testUsers.size();
             averagePrecision = averagePrecision/testUsers.size();
@@ -69,8 +69,8 @@ public class Matcher {
             //0.6508191755376845 0.004319272658871976 1.1829490508155156
             //0.8361187391558982 0.0031479623235842412 1.1290800901769424
 
-            //0.9713037350246653 0.0033451499955933894 1.0778074942882392
-            //0.9116252782531852 0.003911130113044805 1.0484008163799625
+            //0.7848945154759107 0.0053443942569722505 1.0778074942882392
+            //0.8309262615076567 0.006240419585548509 1.0484008163799625
 
 
         } catch (Exception e) {
@@ -95,7 +95,7 @@ public class Matcher {
             Double avgStars = values != null && values[1] > 1 ? values[0] : userAverage;
             Double confidence = values != null ? values[1] : 0;
 
-            if(userRating > 3.9 && confidence > 0){
+            if(userRating > 3.9 && confidence > 1){
                 relevantRetrieved++;
             }
 
@@ -110,7 +110,7 @@ public class Matcher {
 
         int retrieved = 0;
         for(Double[] value : recommendedBusinesses.values()){
-            if(value[0] > 3.9 && value[1] > 0){
+            if(value[0] > 3.9 && value[1] > 1){
                 retrieved++;
             }
         }
