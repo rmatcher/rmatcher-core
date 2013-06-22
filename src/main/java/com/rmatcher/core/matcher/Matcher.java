@@ -44,8 +44,8 @@ public class Matcher {
                 Double userAverage = (double)Math.ceil(average(userTrainingRatedBusinesses.values()));
 
                 //return recommendations for a given user. Will return biz_id and rating by other user
-                Map<String, Double[]> basicRecommendedBusinesses = MatcherUtils.getRecommendationsBasic(userTrainingRatedBusinesses, user, connect);
-                stats(connect, userTestRatedBusinesses, userAverage, basicRecommendedBusinesses);
+                //Map<String, Double[]> basicRecommendedBusinesses = MatcherUtils.getRecommendationsBasic(userTrainingRatedBusinesses, user, connect);
+                //stats(connect, userTestRatedBusinesses, userAverage, basicRecommendedBusinesses);
 
                 //return recommendations for a given user. Will return biz_id and rating by other user
                 Set<String> userVisitedCategories = new HashSet<>();
@@ -57,8 +57,8 @@ public class Matcher {
                     categoryFilteredBiz.addAll(categoryBizMap.get(category));
                 }
 
-                //Map<String, Double[]> advancedRecommendedBusinesses = MatcherUtils.getRecommendationsAdvance(userTrainingRatedBusinesses, user, categoryFilteredBiz, connect);
-                //stats(connect, userTestRatedBusinesses, userAverage, advancedRecommendedBusinesses);
+                Map<String, Double[]> advancedRecommendedBusinesses = MatcherUtils.getRecommendationsAdvance(userTrainingRatedBusinesses, user, categoryFilteredBiz, connect);
+                stats(connect, userTestRatedBusinesses, userAverage, advancedRecommendedBusinesses);
             }
             averageRecall = averageRecall/testUsers.size();
             averagePrecision = averagePrecision/testUsers.size();
@@ -124,6 +124,7 @@ public class Matcher {
         averageRMSD += rootMeanSquaredDeviation;
 
         System.out.println("TotalTestedReviews: " + userTestRatedBusinesses.keySet().size() +  " Recall: " + recall + " Precision: " + precision + " RMSD: " + rootMeanSquaredDeviation);
+        //System.out.println(userTestRatedBusinesses.keySet().size() +  ", " + recall + ", " + precision + ", " + rootMeanSquaredDeviation);
     }
 
 
